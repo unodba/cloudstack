@@ -162,8 +162,11 @@ Guest Network、Storage Network，具体规划信息如下表：
 
 ## 部署虚拟化环境
 ### 部署VMware虚拟化环境
+
 #### 安装VMware ESXi
+
 #### 安装VMware vCenter
+
 #### 配置VMware vCenter
 
 ### 部署KVM虚拟化环境
@@ -174,25 +177,121 @@ Guest Network、Storage Network，具体规划信息如下表：
 #### 安装XenCenter
 #### 配置XenCenter
 
-## 配置主存储二级存储
-### 主存储
-### 二级存储
+## 配置存储
+
+
+CloudStack使用了两种网络存储。一种是主存储，主存储用于存放虚拟机硬盘文件。主存储也可使用本地存储，并非必需使用网络存储。二级存储用于存放虚拟机模板/快照/ISO文件，二级存储只能使用网络存储。
+
+Primary Storage：
+
+Primary Storage（主存储）和Cluster/Zone相关，它为运行于集群内的所有虚拟机提供磁盘存储卷。 你可以为一个区域或集群配置一个或多个主存储服务器（至少需要为一个集群配置一个主存储服务器）， 主存储一般靠近主机，以便提高性能。 Cloudstack负责把主存储分配给虚拟机。
+
+主存储使用存储标签的概念，每个主存储可以和0个，1个或多个存储标签关联。
+
+当某个虚拟机启动的时候，或某个数据磁盘第一个挂载到某个虚拟机的时候，存储标签就可以用于标识哪个主存储可以挂载到虚拟机。 主存储可以是静态的或动态的。
+
+在静态情况下，管理员必须给Cloudstack预先配置一定数量的存储（例如一个SAN的一个Volumn），Cloudstack可以放很多Volumn到它的存储上。
+
+在动态模式下，管理员可以给Cloudstack分配一个存储系统（例如一个SAN），Cloudstak通过和这个存储系统的插件配合，可以实现动态建立存储卷。
+
+Cloudstack可以支持所有标准的iSCSI和NFS Server。
+
+Secondary Storage：
+
+Secondary storage（二级存储）主要保存以下数据：
+Templates（模板）— OS 镜像，可用于引导虚拟机，可以包含其它配置信息，如安装好的软件。 ISO镜像 — 包含数据或引导媒介的磁盘镜像，就是可以刻盘启动的iso文件。 磁盘存储卷的快照 — 保存虚拟机数据的拷贝，可用于数据恢复或建立新的模板。
+
+二级存储的内容对对其范围内的所有主机都是可用的，范围一般指一个区域（Zone）或一个区划（Region）。
+二级存储一般配置为对一个Zone可用的NFS形式，为了使副存储对所有云的主机可用，可以引入对象存储，这样就不必在Zone间复制模板和快照。
+
+Cloudstack提供了Swift和Amazon S3的插件。当使用以上两种存储之一，你可以首先为整个Cloudstack配置对象存储，然后为每个Zone建立NFS中间存储，中间存储的作用是为所有模板和其它副存储数据存储到对象存储系统时提供临时存储。
+
+![store
+](../images/store.png)
+
+### 主存储、二级存储
+
+存储节点使用一台服务器，我们这里以NFS为例，NFS共享目录：/secondary。
+
+1. 安装NFS
+```shell
+# yum install nfs-utils -y
+# yum	install	rpcbind	-y
+```
+2. 创建存储目录
+```shell
+# mkdir -p /export/primary
+# mkdir -p /export/secondary
+```
+3. 配置NFS
+```shell
+# echo "/export *(rw,async,no_root_squash,no_subtree_check)" >/etc/exports
+# exportfs -a
+```
+编辑/etc/export 文件，设置存储的路径,Export /export 目录。
+```shell
+# vi  /etc/sysconfig/nfs
+LOCKD_TCPPORT=32803
+LOCKD_UDPPORT=32769
+MOUNTD_PORT=892
+RQUOTAD_PORT=875
+STATD_PORT=662
+STATD_OUTGOING_PORT=2020
+RPCNFSDARGS="-N	4"			#	对于KVM集群是必须的,	 否则存储异常导致系统
+虚机无法启动
+```
+修改 /etc/sysconfig/nfs，将其中的端口号全部打开。
+4. 配置防火墙
+```shell
+#
+iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p udp --dport 111 -j ACCEPT
+iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p tcp --dport 111 -j ACCEPT
+iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p tcp --dport 2049 -j ACCEPT
+iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p tcp --dport 32803 -j ACCEPT
+iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p udp --dport 32769 -j ACCEPT
+iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p tcp --dport 892 -j ACCEPT
+iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p udp --dport 892 -j ACCEPT
+iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p tcp --dport 875 -j ACCEPT
+iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p udp --dport 875 -j ACCEPT
+iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p tcp --dport 662 -j ACCEPT
+iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p udp --dport 662 -j ACCEPT
+# iptables-save > /etc/sysconfig/iptables
+# service iptables status
+```
+
+5. 启动NFS服务
+```shell
+# service nfs start
+# service rpcbind start
+```
+
+6. 设置服务为自动启动
+```shell
+# chkconfig nfs on
+# chkconfig rpcbind on
+```
+重启服务器
+
 ### 文件服务器
+
+1. 安装httpd服务
+```shell
+# yum install httpd -y
+# service httpd start
+```
+2. 上传系统镜像，系统模版至/var/www/html目录。
 
 ## 部署CloudStack
 ### 配置系统相关服务
+
 1. 配置IP
-    
 ```shell
-# echo
->IPADDR=192.168.3.10
->NETMASK=255.255.255.0
->GATEWAY=192.168.3.254
-> /etc/sysconfig/network-script/ifcfg-eth0
+# echo "IPADDR=192.168.3.10
+NETMASK=255.255.255.0
+GATEWAY=192.168.3.254" >> /etc/sysconfig/network-scripts/ifcfg-eth0
 # sed -i 's/dhcp/static' /etc/sysconfig/network-script/ifcfg-eth0
 # sed -i 's/ONBOOT=no/ONBOOT=yes' /etc/sysconfig/network-script/ifcfg-eth0
 ```
-
 2. 配置主机名
 ```shell
 # echo "cs"> /etc/sysconfig/network
@@ -234,31 +333,35 @@ Guest Network、Storage Network，具体规划信息如下表：
 
 ### 安装CloudStack
 
-设置好源后，直接yum进行安装。
-
+1. 配置cloudstack的yum源
 ```shell
 # echo "[cloudstack-source]
 name=cloudstack
 baseurl=http://192.178.102.249/cloudstack/centos/4.5/
 enabled=1
 gpgcheck=0" > /etc/yum.repos.d/cloudstack.repo
+```
+实验室已将yum源同步到本地，不同版本配置不同，具体配置时以实际版本为准。
+2. 安装cloudstack
+```shell
 # yum install -y cloudstack-management
 ```
+3. 安装cloudstack-agent
+```shell
+# yum install -y cloudstack-agent
+```
+仅在KVM主机节点安装。
 
 ### 安装数据库
 
 1. 安装mysql
-
-  CloudStack使用mysql管理数据，但安装cloudstack-management时没有包含mysql，需要手动安装，并导入数据。数据库可以被安装到其它机器上。
-
 ```shell
 # yum install mysql-server -y
-  ```
-
+```
+CloudStack使用mysql管理数据，但安装cloudstack-management时没有包含mysql，需要手动安装，并导入数据。数据库可以被安装到其它机器上。
   注意：允许远程mysql连接，方便以后查找问题
 
 2. 修改mysql配置
-
 ```shell
 # echo "[mysqld]
 datadir=/var/lib/mysql
@@ -271,40 +374,38 @@ innodb_lock_wait_timeout=600
 max_connections=350
 log-bin=mysql-bin
 binlog-format = 'ROW'
-
 [mysqld_safe]
 log-error=/var/log/mysqld.log
 pid-file=/var/run/mysqld/mysqld.pid" >/etc/my.cnf
 ```
-
 max_connections 的参数应设置 350 乘以你准备部署的管
 理节点的数量。这里假定只安装一个管理节点。
 
 3. 修改mysql安全
-
-  缺省安装的 mysql 安全级别比较低，需要手工设置 mysql 下密码、禁用远程访问，删除无用账户及测试数据库。使用如下命令按向导提示一步步来即可：
 ```shell
 # service mysqld start
-# mysql_secure_installation
 # chkconfig mysqld on
+# mysql_secure_installation
 # service mysqld restart
-mysql stop/waiting
-mysql start/running, process 9303
+Stopping mysqld:                                           [  OK  ]
+Starting mysqld:                                           [  OK  ]
 # /sbin/iptables -I INPUT -p tcp --dport 3306 -j ACCEPT
 # /etc/rc.d/init.d/iptables save
 ```
+缺省安装的 mysql 安全级别比较低，需要手工设置 mysql 下密码、禁用远程访问，删除无用账户及测试数据库。
 
 4. 导入数据
-
-  数据库准备好后，需导入 CloudStack 的表及基础数据，这样云平台才能正常使用：
 ```shell
 # cloudstack-setup-databases cloud:111111@localhost --deploy-as=root:111111
 ```
+数据库准备好后，需导入 CloudStack 的表及基础数据，这样云平台才能正常使用。
 如果没有意外的话，最后会输出 CloudStack has successfully initialized database
 字样，表示数据库已经准备好了。
+版本4.5在安装时数据库升级可能会失败，确认错误，重复两次即可。
 
 ### 启动CloudStack
-配置管理服务器服务并启动服务，检查服务状态。
+
+1. 配置管理服务器服务并启动服务，检查服务状态。
 ```shell
 # cloudstack-setup-management
 # service cloudstack-management status
@@ -316,20 +417,27 @@ mysql start/running, process 9303
 
   CloudStack使用一组系统虚机来提供访问虚机控台，各种网络服务和管理存储的功能。当你引导云的时候，该步骤会获取这些准备用于部署的系统镜像。现在我们要从刚刚挂载的共享存储上面下载虚机模板并部署它们。管理服务器上有一个脚本来操作这些系统虚机镜像。这里的模版已装好的数据库中看到系统使用的模版地址，下载对应版本即可：
 ```SQL
-SQL> SELECT NAME,URL FROM vm_template WHERE NAME LIKE '%KVM%'
-```
+SQL> SELECT NAME,URL FROM vm_template; ```
 直接下载即可：
 ```shell
-# wget http://download.cloud.com/templates/4.3/systemvm64template-2014-01-14-master-kvm.qcow2.bz2
+# wget http://download.cloud.com/templates/4.5/systemvm64template-4.5-vmware.ova
 ```
 2. 挂载nfs
 ```shell
-# mount -t nfs 192.168.50.10:/export/secondary /secondary
+# mount -t nfs 192.168.50.10:/export/secondary /mnt
 ```
+在管理服务器上挂载二级存储.
 3. 导入系统模版
 ```shell
-# /usr/share/cloudstack-common/scripts/storage/secondary/cloud-install-sys-tmplt -m /secondary -f /root/systemvm64template-2014-01-14-master-kvm.qcow2.bz2 -h kvm –F
+# /usr/share/cloudstack-common/scripts/storage/secondary/cloud-install-sys-tmplt \
+-m /mnt \
+-u http://192.178.102.249/cloudstack/systemvm64template-4.4.1-7-vmware.ova \
+-h vmware \
+-F
 ```
+
 ## 配置CloudStack
+
 ### 创建Basic Zone
+
 ### 创建Advanced Zone
