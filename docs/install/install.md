@@ -117,24 +117,23 @@ These hosts can run the following operating systems:
 
 ### 主机规划
 
-| 主机名   | IP地址         |  用途         |系统| 备注          |
-| --------| :-----         | :----:       |  |:----:      |
-|cs | 192.168.3.10   |   管理节点,mysql,cleint | centos6.6 x64 |8核,8G|
-|vcenter |	192.168.3.9  |		vcenter   | VMWARE vCenter	| 	16核,8G
-|xencenter|	192.168.3.8|		xencenter | Xencenter	| 	16核,8G
-|nfs   |	192.168.5.10   |		二级存储,镜像，nfs，http |centos6.6 x64| 	16核,32G，320G
-|nr1r01n01 |		192.168.3.11 |		计算节点	 | VMWARE esxi 5.5| 	16核,64G
-|nr1r01n02 |		192.168.3.12 |		计算节点   | VMWARE esxi 5.5| 	16核,64G
-|nr1r01n03 |		192.168.3.13 |		计算节点 	 | VMWARE esxi 5.5| 	16核,64G
-|nr1r01n04 |		192.168.3.14 |		计算节点	 | VMWARE esxi 5.5| 	16核,64G
-|nr1r01n05 |		192.168.3.15 |		计算节点   | VMWARE esxi 5.5| 	16核,64G
-|nr1r01n06 |		192.168.3.16 |		计算节点	 | VMWARE esxi 5.5| 	16核,64G
-|nr1r01n07 |		192.168.3.17 |		计算节点   | VMWARE esxi 5.5| 	16核,64G
-|nr1r01n08 |		192.168.3.18 |		计算节点	 | VMWARE esxi 5.5| 	16核,64G
+| 主机名   | IP地址      |  用途                    |系统             | 备注       |
+| -------- | :-----      | :----:                  | :----:           |:----:      |
+|cs        |192.168.3.10 |   管理节点,mysql,cleint | centos6.6 x64    |    8核,8G  |
+|vcenter   |192.168.3.9  |	vcenter              | VMWARE vCenter	| 	16核,8G |
+|xencenter |192.168.3.8  |	xencenter            | Xencenter        | 	16核,8G
+|nfs       |192.168.5.10 |	二级存储,镜像，nfs，http |centos6.6 x64| 	16核,32G，320G|
+|nr1r01n01 |192.168.3.11 |	计算节点	           | VMWARE esxi 5.5| 	16核,64G|
+|nr1r01n02 |192.168.3.12 |	计算节点             | VMWARE esxi 5.5| 	16核,64G|
+|nr1r01n03 |192.168.3.13 |	计算节点 	           | VMWARE esxi 5.5| 	16核,64G|
+|nr1r01n04 |192.168.3.14 |	计算节点       	 | VMWARE esxi 5.5| 	16核,64G|
+|nr1r01n05 |192.168.3.15 |	计算节点             | VMWARE esxi 5.5| 	16核,64G|
+|nr1r01n06 |192.168.3.16 |	计算节点         	 | VMWARE esxi 5.5| 	16核,64G|
+|nr1r01n07 |192.168.3.17 |	计算节点             | VMWARE esxi 5.5| 	16核,64G|
+|nr1r01n08 |192.168.3.18 |	计算节点       	 | VMWARE esxi 5.5| 	16核,64G|
 
 ### Basic Zone
-Basic Zone需要配置3种网络流量类型，分别为Management Network、
-Guest Network、Storage Network，具体规划信息如下表：
+Basic Zone需要配置3种网络流量类型，分别为Management Network、Guest Network、Storage Network，具体规划信息如下表：
 
 | Network类型       | 说明              |  VLAN ID | IP Range     |CIDR |
 | --------          | :-----           | :----:   |  :----:      |  :----:      |  :----:      |
@@ -144,7 +143,7 @@ Guest Network、Storage Network，具体规划信息如下表：
 | Storage Network   | 主存储，二级存储所在的存储网络 |  50  | |192.168.50.0/24|
 
 连接示意图如下图所示：
-![Basic-Zone](../images/Basic-Zone.svg)
+![Basic-Zone](../images/Basic-Zone.png)
 
 ### Advanced Zone
 
@@ -158,7 +157,7 @@ Guest Network、Storage Network，具体规划信息如下表：
 | Storage Network   | 主存储，二级存储所在的存储网络 |  50|  |192.168.50.0/24|
 
 连接示意图如下图所示：
-![Advanced-Zone](../images/Advanced-Zone.svg)
+![Advanced-Zone](../images/Advanced-Zone.png)
 
 ## 部署虚拟化环境
 ### 部署VMware虚拟化环境
