@@ -212,17 +212,17 @@ Cloudstack提供了Swift和Amazon S3的插件。当使用以上两种存储之�
 
 存储节点使用一台服务器，我们这里以NFS为例，NFS共享目录：/secondary。
 
-1. 安装NFS
+#### 1. 安装NFS
 ```shell
 # yum install nfs-utils -y
 # yum	install	rpcbind	-y
 ```
-2. 创建存储目录
+#### 2. 创建存储目录
 ```shell
 # mkdir -p /export/primary
 # mkdir -p /export/secondary
 ```
-3. 配置NFS
+#### 3. 配置NFS
 ```shell
 # echo "/export *(rw,async,no_root_squash,no_subtree_check)" >/etc/exports
 # exportfs -a
@@ -240,7 +240,7 @@ RPCNFSDARGS="-N	4"			#	对于KVM集群是必须的,	 否则存储异常导致系
 虚机无法启动
 ```
 修改 /etc/sysconfig/nfs，将其中的端口号全部打开。
-4. 配置防火墙
+#### 4. 配置防火墙
 ```shell
 #
 iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p udp --dport 111 -j ACCEPT
@@ -258,13 +258,13 @@ iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p udp --dport 662 -j ACCEPT
 # service iptables status
 ```
 
-5. 启动NFS服务
+#### 5. 启动NFS服务
 ```shell
 # service nfs start
 # service rpcbind start
 ```
 
-6. 设置服务为自动启动
+#### 6. 设置服务为自动启动
 ```shell
 # chkconfig nfs on
 # chkconfig rpcbind on
@@ -273,17 +273,17 @@ iptables -A INPUT -s 0.0.0.0/0 -m state --state NEW -p udp --dport 662 -j ACCEPT
 
 ### 文件服务器
 
-1. 安装httpd服务
+#### 1. 安装httpd服务
 ```shell
 # yum install httpd -y
 # service httpd start
 ```
-2. 上传系统镜像，系统模版至/var/www/html目录。
+#### 2. 上传系统镜像，系统模版至/var/www/html目录。
 
 ## 部署CloudStack
 ### 配置系统相关服务
 
-1. 配置IP
+#### 1. 配置IP
 ```shell
 # echo "IPADDR=192.168.3.10
 NETMASK=255.255.255.0
@@ -291,7 +291,7 @@ GATEWAY=192.168.3.254" >> /etc/sysconfig/network-scripts/ifcfg-eth0
 # sed -i 's/dhcp/static' /etc/sysconfig/network-script/ifcfg-eth0
 # sed -i 's/ONBOOT=no/ONBOOT=yes' /etc/sysconfig/network-script/ifcfg-eth0
 ```
-2. 配置主机名
+#### 2. 配置主机名
 ```shell
 # echo "cs"> /etc/sysconfig/network
 # hostname -F /etc/sysconfig/network
@@ -299,7 +299,7 @@ GATEWAY=192.168.3.254" >> /etc/sysconfig/network-scripts/ifcfg-eth0
 # hostname --fqdn
 //检查配置是否有效
 ```
-3. 关闭 selinux
+#### 3. 关闭 selinux
 ```shell
 # getenforce
 //查看当前 selinux 状态
@@ -308,23 +308,20 @@ GATEWAY=192.168.3.254" >> /etc/sysconfig/network-scripts/ifcfg-eth0
 # sed -i 's/enforcing/disabled/' /etc/selinux/config
 //修改 selinux 配置文件，重启永久禁用
 ```
-4. 配置系统的本地 yum 源
+#### 4. 配置系统的本地 yum 源
 ```shell
 # yum clean all & yum makecache
 ```
-5. 配置 ntp 服务器
+#### 5. 配置 ntp 服务器
 ```shell
 # yum install ntp  -y
 # vi /etc/ntp.conf
-//编辑 ntp 配置文件，将服务器替换成如下服务器
-0.xenserver.pool.ntp.org
-1.xenserver.pool.ntp.org
-2.xenserver.pool.ntp.org
-3.xenserver.pool.ntp.org
-# service ntpd restart;chkconfig ntpd on
+//编辑 ntp 配置文件，将服务器替换成可用对时服务器。
+# service ntpd restart
+# chkconfig ntpd on
 //重启 ntp 服务，并且设置其开机启动
 ```
-6. 确认管理节点没有安装JDK6或者其他较低的版本，如有安装，先卸载该JDK，再进行进行下面的步骤
+#### 6. 确认管理节点没有安装JDK6或者其他较低的版本，如有安装，先卸载该JDK，再进行进行下面的步骤
 。（cs4.4开始改用JDK7）
 ```shell
 # java -version
@@ -332,7 +329,7 @@ GATEWAY=192.168.3.254" >> /etc/sysconfig/network-scripts/ifcfg-eth0
 
 ### 安装CloudStack
 
-1. 配置cloudstack的yum源
+#### 1. 配置cloudstack的yum源
 ```shell
 # echo "[cloudstack-source]
 name=cloudstack
@@ -341,11 +338,11 @@ enabled=1
 gpgcheck=0" > /etc/yum.repos.d/cloudstack.repo
 ```
 实验室已将yum源同步到本地，不同版本配置不同，具体配置时以实际版本为准。
-2. 安装cloudstack
+#### 2. 安装cloudstack
 ```shell
 # yum install -y cloudstack-management
 ```
-3. 安装cloudstack-agent
+#### 3. 安装cloudstack-agent
 ```shell
 # yum install -y cloudstack-agent
 ```
@@ -353,14 +350,14 @@ gpgcheck=0" > /etc/yum.repos.d/cloudstack.repo
 
 ### 安装数据库
 
-1. 安装mysql
+#### 1. 安装mysql
 ```shell
 # yum install mysql-server -y
 ```
 CloudStack使用mysql管理数据，但安装cloudstack-management时没有包含mysql，需要手动安装，并导入数据。数据库可以被安装到其它机器上。
   注意：允许远程mysql连接，方便以后查找问题
 
-2. 修改mysql配置
+#### 2. 修改mysql配置
 ```shell
 # echo "[mysqld]
 datadir=/var/lib/mysql
@@ -380,7 +377,7 @@ pid-file=/var/run/mysqld/mysqld.pid" >/etc/my.cnf
 max_connections 的参数应设置 350 乘以你准备部署的管
 理节点的数量。这里假定只安装一个管理节点。
 
-3. 修改mysql安全
+#### 3. 修改mysql安全
 ```shell
 # service mysqld start
 # chkconfig mysqld on
@@ -393,7 +390,7 @@ Starting mysqld:                                           [  OK  ]
 ```
 缺省安装的 mysql 安全级别比较低，需要手工设置 mysql 下密码、禁用远程访问，删除无用账户及测试数据库。
 
-4. 导入数据
+#### 4. 导入数据
 ```shell
 # cloudstack-setup-databases cloud:111111@localhost --deploy-as=root:111111
 ```
@@ -404,7 +401,7 @@ Starting mysqld:                                           [  OK  ]
 
 ### 启动CloudStack
 
-1. 配置管理服务器服务并启动服务，检查服务状态。
+#### 1. 配置管理服务器服务并启动服务，检查服务状态。
 ```shell
 # cloudstack-setup-management
 # service cloudstack-management status
@@ -412,7 +409,7 @@ Starting mysqld:                                           [  OK  ]
 ```
 ### 安装上传系统模版
 
-1. 确定模版版本
+#### 1. 确定模版版本
 
   CloudStack使用一组系统虚机来提供访问虚机控台，各种网络服务和管理存储的功能。当你引导云的时候，该步骤会获取这些准备用于部署的系统镜像。现在我们要从刚刚挂载的共享存储上面下载虚机模板并部署它们。管理服务器上有一个脚本来操作这些系统虚机镜像。这里的模版已装好的数据库中看到系统使用的模版地址，下载对应版本即可：
 ```SQL
@@ -421,12 +418,12 @@ SQL> SELECT NAME,URL FROM vm_template; ```
 ```shell
 # wget http://download.cloud.com/templates/4.5/systemvm64template-4.5-vmware.ova
 ```
-2. 挂载nfs
+#### 2. 挂载nfs
 ```shell
 # mount -t nfs 192.168.50.10:/export/secondary /mnt
 ```
 在管理服务器上挂载二级存储.
-3. 导入系统模版
+#### 3. 导入系统模版
 ```shell
 # /usr/share/cloudstack-common/scripts/storage/secondary/cloud-install-sys-tmplt \
 -m /mnt \
