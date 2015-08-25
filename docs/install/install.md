@@ -115,46 +115,95 @@ These hosts can run the following operating systems:
 
 ## 环境规划
 
-### 主机规划
+### 设备配置说明
+#### 路由器
 
-| 主机名   | IP地址      |  用途                    |系统             | 备注       |
-| -------- | :-----      | :----:                  | :----:           |:----:      |
-|cs        |192.168.3.10 |   管理节点,mysql,cleint | centos6.6 x64    |    8核,8G  |
-|vcenter   |192.168.3.9  |	vcenter              | VMWARE vCenter	| 	16核,8G |
-|xencenter |192.168.3.8  |	xencenter            | Xencenter        | 	16核,8G
-|nfs       |192.168.5.10 |	二级存储,镜像，nfs，http |centos6.6 x64| 	16核,32G，320G|
-|nr1r01n01 |192.168.3.11 |	计算节点	           | VMWARE esxi 5.5| 	16核,64G|
-|nr1r01n02 |192.168.3.12 |	计算节点             | VMWARE esxi 5.5| 	16核,64G|
-|nr1r01n03 |192.168.3.13 |	计算节点 	           | VMWARE esxi 5.5| 	16核,64G|
-|nr1r01n04 |192.168.3.14 |	计算节点       	 | VMWARE esxi 5.5| 	16核,64G|
-|nr1r01n05 |192.168.3.15 |	计算节点             | VMWARE esxi 5.5| 	16核,64G|
-|nr1r01n06 |192.168.3.16 |	计算节点         	 | VMWARE esxi 5.5| 	16核,64G|
-|nr1r01n07 |192.168.3.17 |	计算节点             | VMWARE esxi 5.5| 	16核,64G|
-|nr1r01n08 |192.168.3.18 |	计算节点       	 | VMWARE esxi 5.5| 	16核,64G|
+路由器连接公网和内部网络，路由器内部ip地址为：192.168.6.1 ，与三层交换机g0/1连接。
+
+|设备        | 物理接口 |  地址             | 功能                |备注    |
+|------      | :-----  | :----:           |  :----:             |:----:  |
+| 路由器 | e0/0    |  222.222.222.220 |  连接internet       |        |
+|            | e0/1    |  192.168.6.1/24  |  内部接口，连接交换机 |        |
+
+#### 交换机
+
+交换机负责物理网络vlan划分，开启vlan间路由器，交换机的g0/1属于vlan 2，和路由器内网接口连接，vlan 2 ip地址为：192.168.6.254
+二层交换机也可以，但是需要在路由器上做单臂路由。
+
+|设备         | vlan    |  vlan  ip 网关    | 功能          |备注    |
+|------       | :-----:| :----:            |  :----:       |:----:  |
+| 交换机       | 2      |  192.168.6.254/24 | 连接出口路由器  |        |
+|             | 11     |  192.168.11.1/24    | 计算节点出口网关 |        |
+|             | 12     |  192.168.12.1/24    | Storage Network |        |
+|             | 20     |  192.168.20.1/24    | Public Network     |        |
+|             | 300-310|                   | Guest Network      |        |
+
+|接口序号 | vlan  | 接口模式 | 连接服务器        |备注              |
+|------  | :-----| :----:  |  :----:          |:----:            |
+| g0/1   | 12    |  Access | nfs              |                  |
+| g0/2   | 2     |  Access | 路由器内网接口     |                  |
+| g0/3   | 11    |  Trunk  | cs               |  native vlan 11  |
+| g0/4   | 11    |  Trunk  | nr1r01n01            |  native vlan 11  |
+| g0/5   | 11    |  Trunk  | nr1r01n02            |  native vlan 11  |
+
+
+#### 流量分类规划
+
+|流量类型 |	VLAN |	        	CIDR  |		网关       |		起始IP    |		结束IP |备注|
+|------  |------  | :-----| :----:  |  :----:          |:----:            |
+|Public Network |	20   |		192.168.20.0/24 |		192.168.20.1 |	192.168.20.10	 |192.168.20.250 |公共流量
+|Manage Network|	11	 |	192.168.11.0/24	 |	192.168.11.1 |		192.168.11.200	 |	192.168.11.229	 |	提供点，内部系统用的IP，如系统vm |
+|Guest Network |	300-310	|	10.1.1.0/24	 |	10.1.1.1	 |	10.1.1.10	 |  10.1.1.250 |来宾流量，用户vm使用
+|Storage Network|	11	   |	192.168.11.0/24	 |	192.168.11.1	 |	192.168.11.230	 |	192.168.11.249	 | 存储流量 |
+
+
+高级区域配置成功后，客户vm将获得一个10.1.2.0网段的私有ip地址；系统将建立一个虚拟路由器Vrouter，这个虚拟路由器将作为用户vm 10.1.2.0 guest网段网关;同时这个路由器还将获得一个public的网段的ip地址；vm将通过Vrouter nat功能实现外部通信和对外提供服务。
+
+Guest vm(10.1.2.x)→(10.1.2.1)Vrouter-nat(192.168.20.x) → (192.168.20.1)三层交换机(192.168.6.254）→
+（192.168.6.1）路由器(nat)→wan
+
+
+#### 主机规划
+
+物理主机和管理服务器属于vlan 11 , 交换机连接计算节点的端口配置为trunk模式，允许所有vlan通过，本征vlan 为11；nfs为存储设备，连接交换机的接口配置为access模式，属于vlan 12。
+
+| 设备名称   | IP地址     |  	网关    |	vlan |用途                  |系统             | 备注       |
+| -------- | :-----      | :----:   |:----:|:----:                 | :----:           |:----:    |
+|cs        |192.168.11.10 |192.168.11.1|	11	| 管理节点,mysql,client | centos6.6 x64  |    8核,8G  |
+|vcenter   |192.168.11.9  |192.168.11.1|	11	|	vcenter              | VMWARE vCenter	| 	16核,8G |
+|xencenter |192.168.11.8  |192.168.11.1|	11	|	xencenter            | Xencenter      | 16核,8G  |
+|nfs       |192.168.12.10 |192.168.12.1|	12	|	存储,镜像，nfs，http |centos6.6 x64| 	16核,32G，320G|
+|nr1r01n01 |192.168.11.11 |192.168.11.1|	11	|	计算节点	           | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n02 |192.168.11.12 |192.168.11.1|	11	|	计算节点             | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n03 |192.168.11.13 |192.168.11.1|	11	|	计算节点 	           | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n04 |192.168.11.14 |192.168.11.1|	11	|	计算节点          	 | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n05 |192.168.11.15 |192.168.11.1|	11	|	计算节点             | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n06 |192.168.11.16 |192.168.11.1|	11	|	计算节点          	 | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n07 |192.168.11.17 |192.168.11.1|	11	|	计算节点             | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n08 |192.168.11.18 |192.168.11.1|	11	|	计算节点          	 | VMWARE esxi 5.5| 	32核,64G|
 
 ### Basic Zone
 Basic Zone需要配置3种网络流量类型，分别为Management Network、Guest Network、Storage Network，具体规划信息如下表：
 
-| Network类型       | 说明              |  VLAN ID | IP Range     |CIDR |
-| --------          | :-----           | :----:   |  :----:      |  :----:      |  :----:      |
-| Management Network| 管理服务器所在网络 |  access 3   | 192.168.3.30~50   |192.168.3.0/24|
-| Management Network| 主机所在的网络     | access  3   | 192.168.3.11~29   |192.168.3.0/24|
-| Guest Network     | 用户的私有网络     | access  3  |    |192.168.3.0/24 |
-| Storage Network   | 主存储，二级存储所在的存储网络 |  50  | |192.168.50.0/24|
+|流量类型 |	VLAN |	        	CIDR  |		网关       |		起始IP    |		结束IP |备注|
+|------  |------  | :-----| :----:  |  :----:          |:----:            |
+|Public Network |	 11  |	192.168.11.0/24  |	192.168.11.1 |	192.168.11.170	 |192.168.11.199 |公共流量, |
+|Manage Network|	 11	 |	192.168.11.0/24	 |	192.168.11.1 |	192.168.11.200	 |	192.168.11.229	 |	提供点，内部系统用的IP，如系统vm |
+|Guest Network |	 11	 |	192.168.11.0/24  |	192.168.11.1 |	192.168.11.100	 |  192.168.11.169 |来宾流量，用户vm使用, |
+|Storage Network|	 11	 |	192.168.11.0/24	 |	192.168.11.1 |	192.168.11.230	 |	192.168.11.249	 | 存储流量 |
 
 连接示意图如下图所示：
 ![Basic-Zone](../images/Basic-Zone.png)
 
 ### Advanced Zone
 
-| Network类型       | 说明              |  VLAN ID  | IP Range     |CIDR |
-| --------          | :-----           | :----:    |  :----:      |:----:      |
-| Management Network| 管理服务器所在网络 |  3   |   |192.168.3.0/24|
-| Management Network| Pod1的主机管理网络 |   4  |     |192.168.4.0/24|
-| Management Network| Pod2的主机管理网络 |   5  |    |192.168.5.0/24|
-| Public Network    | 公共网络          |   60  |     |192.168.60.0/24 |
-| Guest Network     | 用户的私有网络     |   601-650 | |10.1.1.0/24 |
-| Storage Network   | 主存储，二级存储所在的存储网络 |  50|  |192.168.50.0/24|
+|流量类型 |	VLAN |	        	CIDR  |		网关       |		起始IP    |		结束IP |备注|
+|------  |------  | :-----| :----:  |  :----:          |:----:            |
+|Public Network |	20   |		192.168.20.0/24 |		192.168.20.1 |	192.168.20.10	 |192.168.20.250 |公共流量
+|Manage Network|	11	 |	192.168.11.0/24	 |	192.168.11.1 |		192.168.11.200	 |	192.168.11.229	 |	提供点，内部系统用的IP，如系统vm |
+|Guest Network |	300-310	|	10.1.1.0/24	 |	10.1.1.1	 |	10.1.1.10	 |  10.1.1.250 |来宾流量，用户vm使用
+|Storage Network|	11	   |	192.168.11.0/24	 |	192.168.11.1	 |	192.168.11.230	 |	192.168.11.249	 | 存储流量 |
+
 
 连接示意图如下图所示：
 ![Advanced-Zone](../images/Advanced-Zone.png)
@@ -413,7 +462,8 @@ Starting mysqld:                                           [  OK  ]
 
   CloudStack使用一组系统虚机来提供访问虚机控台，各种网络服务和管理存储的功能。当你引导云的时候，该步骤会获取这些准备用于部署的系统镜像。现在我们要从刚刚挂载的共享存储上面下载虚机模板并部署它们。管理服务器上有一个脚本来操作这些系统虚机镜像。这里的模版已装好的数据库中看到系统使用的模版地址，下载对应版本即可：
 ```SQL
-SQL> SELECT NAME,URL FROM vm_template; ```
+SQL> SELECT NAME,URL FROM vm_template;
+```
 直接下载即可：
 ```shell
 # wget http://download.cloud.com/templates/4.5/systemvm64template-4.5-vmware.ova
@@ -437,3 +487,68 @@ SQL> SELECT NAME,URL FROM vm_template; ```
 ### 创建Basic Zone
 
 ### 创建Advanced Zone
+
+## 附，可能遇到的问题
+1、管理节点的webui 无法访问
+Cloudstack基于tomcat提供web服务，默认使用了8080端口。如果你想改用其它端口，可以修改 /etc/tomcat6/server.xml 文件进行配置。
+Cloudstack默认安装在 /etc/cloudstack/management 目录下，你可以通过修改 log4j-cloud.xml文件来调整日志的输出级别、路径等。
+cloudstack默认日志在/var/log/cloudstack下
+
+检查iptables是否阻挡了8080端口。检查cloudstack-management服务是否正常启动。
+service cloudstack-management status
+如果启动状态不正常，则需要检查一下日志。
+日志位于 /var/log/cloudstack/management/catalina.out 。根据日志中的错误提示，进行相应的处理，绝大多数问题都可以得到解决。
+如果日志信息不够详细，可以修改 /etc/cloudstack/management/log4j-cloud.xml来调整日志的输出级别。
+2、登陆时提示用户名密码不正确。
+
+默认的登陆用户名为 admin 密码是 password 。
+如果登陆时提示不正确，可能是导入基础数据库时有的问题。
+重新导入基础数据库：
+cloudstack-setup-databases cloud:123456@localhost --deploy-as=root:root密码
+如果还不行，参考5将数据库删掉再重新导入。
+3、CloudStack不能添加主存储或二级存储
+
+检查/etc/sysconfig/nfs配置文件是否把端口都开放了。
+检查iptables是否有阻挡。
+检查CloudStack的“全局设置”，secstorage.allowed.internal.sites属性是否设置正确。
+4、CloudStack无法导入IOS或虚拟机模板
+
+创建好“基础架构”后，就可以导入ISO文件或虚拟机模板，为创建虚机做准备了。
+如果你发现注册ISO或注册模板时，状态字段一直不动，已就绪永远都是no，那一般都是因为二级存储有问题或Secondary Storage VM 有问题了。
+选择“控制板”-<系统容量，检查二级存储容量是否正确。
+检查系统VM中的Secondary Storage VM是否正常启动。
+5、CloudStack如何重装
+
+安装完CloudStack后，我们往往会做各种实验，可能会把系统搞得很乱。想删除的话非常麻烦，因为它们之间往往存在层级关系，必须先从最底层删起。有没简单的办法直接推倒重来呢？答案是有的，最简单只要重置下其数据库即可。
+先停掉CloudStack服务：
+service cloudstack-management stop
+登陆mysql控制台，删除数据库：
+mysql -u root -p123456
+drop database cloud;
+drop database cloud_usage;
+drop database cloudbridge;
+quit;
+/etc/init.d/mysqld restart
+重新导入基础数据：
+cloudstack-setup-databases cloud:123456@localhost --deploy-as=root:123456
+重新导入系统虚机：
+在管理服务器上挂载二级存储：
+ mount 192.168.20.9:/export/secondary /mnt/
+导入虚拟机模版
+
+/usr/share/cloudstack-common/scripts/storage/secondary/cloud-install-sys-tmplt \
+-m /mnt \
+-u http://192.178.102.249/cloudstack/systemvm64template-4.4.1-7-vmware.ova \
+-h vmware \
+-F
+卸载
+umount /mnt/
+
+cloudstack-setup-management
+重启cloudstack服务
+service cloudstack-management start
+这时，你再登陆就会发现一个全新的CloudStack啦。
+6、CloudStack的区域、提供点等无法用中文命名
+
+CloudStack在4.1以前的版本中，区域、提供点等均可使用中文命名，但4.1版本时却不知为何做了限制，蛋疼。
+如果在意这个功能，请使用4.1以前的版本。推荐使用 4.0.2版。
