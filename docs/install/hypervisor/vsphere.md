@@ -185,12 +185,15 @@ ESXi主机的虚拟交换机默认有56个端口。我们建议设为最大允�
 
 ```shell
 esxcfg-firewall -o 59000-60000,tcp,in,vncextras
-esxcfg-firewall -o 59000-60000,tcp,out,vncextras```
+esxcfg-firewall -o 59000-60000,tcp,out,vncextras
+```
 
 <a name="配置vSphere的网卡绑定"></a>
 ## 配置vSphere的网卡绑定
 
 vSphere主机的网卡绑定可以按照vSphere安装指南完成。
+
+
 <a name=" 配置VMware数据中心使用VMware分布式虚拟交换机"></a>
 ## 配置VMware数据中心使用VMware分布式虚拟交换机
 
