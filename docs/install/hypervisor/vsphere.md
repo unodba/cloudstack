@@ -6,6 +6,23 @@ VMware vSphere 安装和配置
   - [vSphere ESXi硬件要求](#vSphere ESXi硬件要求)
   - [vSphere vCenter要求](#vSphere vCenter要求)
   - [其他要求](#其他要求)
+- [VMware的准备工作清单](#VMware的准备工作清单)
+  - [vCenter检查清单](#vCenter检查清单)
+  - [VMware网络清单](#VMware网络清单)
+- [vSphere ESXi安装](#vSphere ESXi安装)
+  - [vSphere ESXi主机配置](#vSphere ESXi主机配置)
+  - [vSphere vCenter管理网络配置](#vSphere vCenter管理网络配置)
+  - [为CloudStack控制台代理扩展端口范围](#为CloudStack控制台代理扩展端口范围)
+  - [配置vSphere的网卡绑定](#配置vSphere的网卡绑定)
+  - [配置VMware数据中心使用VMware分布式虚拟交换机](#配置VMware数据中心使用VMware分布式虚拟交换机)
+  - [在CloudStack中启用分布式虚拟交换机](#在CloudStack中启用分布式虚拟交换机)
+  - [在CloudStack中配置分布式虚拟交换机](#在CloudStack中配置分布式虚拟交换机)
+  - [ vSphere的存储准备(仅限iSCSI)](#vSphere的存储准备(仅限iSCSI))
+  - [ ESXi主机中启用iSCSI启动器](#ESXi主机中启用iSCSI启动器)
+  - [ 添加iSCSI目标](#添加iSCSI目标)
+  - [vSphere多路径(可选)](#vSphere多路径(可选))
+  - [添加主机或配置集群(vSphere)](#添加主机或配置集群(vSphere))
+- [VMware vSphere主机安装补丁程序](#VMware vSphere主机安装补丁程序)
 
 
 如果计划使用VMware vSphere平台运行虚拟机，请在云中安装vSphere主机。
@@ -65,24 +82,27 @@ VMware vSphere 安装和配置
 
 -  所有必需的vlan必须通过所有网络交换机端口的trunk模式连接到ESXi hypervisor主机。其中包含管理，存储，vMotion和来宾等VLANs。CloudStack管理一段连续的来宾VLANs范围(高级网络；请参阅 网络设置) 。
 
-
+<a name="VMware的准备工作清单"></a>
 # VMware的准备工作清单
 
 为了能顺利地安装，在安装之前请收集以下信息：
-
+<a name="vCenter检查清单"></a>
 ## vCenter检查清单
 
 你需要关于vCenter的下列信息。
 
 | vCenter要求      |备注|
+|              --- | ---|
 | vCenter用户      | 用户必须拥有管理员权限|
 | vCenter用户的密码 | 上述用户的密码       |
 | vCenter数据库名称 | 数据中心名称         |
 | vCenter群集名称   | 群集名称            |
 
+<a name="VMware网络清单"></a>
 ## VMware网络清单
 
 | VLAN信息  | 备注 |
+|              --- | ---|
 | ESXi VLAN	全部ESXi  | hypervisors主机所在的VLAN。 |
 | ESXi VLAN IP地址  | ESXi VLAN的IP地址范围。每个虚拟路由器使用该范围内的一个IP。 |
 | ESXi VLAN网关IP  | ESXi VLAN子网掩码 |
@@ -91,19 +111,20 @@ VMware vSphere 安装和配置
 | 公共网络VLAN的网关  | 公共网络VLAN的子网掩码 |
 | 公共VLAN IP地址范围 |  CloudStack使用的公共网络IP范围。CloudStack中的虚拟路由器使用这些地址，用于路由专用流量至外部网络。 |
 | 客户使用的VLAN范围 |  连续的不可路由的VLAN范围。每个用户会分配一个VLAN。 |
-
+<a name="vSphere ESXi安装"></a>
 # vSphere ESXi安装
 
 * 准备好安装介质。
 
 * 安装过程中，执行下面几个章节描述的以下配置：
 
-|  要求|  可选项
+|  要求|  可选项|
+|              --- | ---|
 |  ESXi主机安装|  网卡绑定|  
 |  配置主机的物理网络，虚拟交换机，vCenter管理网络和扩展的端口范围|  存储多路径|  
 |  准备iSCSI存储|  |  
 |  在vCenter中配置集群并添加主机，或不使用集群，直接在vCenter中添加主机。|  |  
-
+<a name="vSphere ESXi主机配置"></a>
 ## vSphere ESXi主机配置
 
 所有ESXi主机都应该在BIOS中启用CPU硬件虚拟化支持。请注意，大多数服务器默认不启用该功能。
@@ -138,7 +159,7 @@ ESXi主机的虚拟交换机默认有56个端口。我们建议设为最大允�
 
 在该对话框中，您可以修改端口数量。修改完后，为使配置生效，需要重启ESXi主机。
 
-
+<a name="vSphere vCenter管理网络配置"></a>
 ## vSphere vCenter管理网络配置
 
 在vSwith属性对话框中，您可以看到一个vCenter管理网络。CloudStack的管理网络也使用该网络。CloudStack要求正确配置vCenter的管理网络。在对话框中点击管理网络，然后点击编辑。
@@ -156,21 +177,21 @@ ESXi主机的虚拟交换机默认有56个端口。我们建议设为最大允�
 在所有ESXi主机上使用同一个管理网络端口组名称。
 在CloudStack管理界面中，点击配置-全局设置，修改vmware.management.portgroup为ESXi主机管理网络的标签。
 
-
+<a name="为CloudStack控制台代理扩展端口范围"></a>
 ## 为CloudStack控制台代理扩展端口范围
 （仅适用于VMware vSphere 4.x）
 
 为使控制台代理可以和主机一起工作，您需要扩展主机的防火墙端口范围。这是为了使控制台代理可以访问VMware的VM。为扩展端口范围，请登录到每台主机的VMware ESX服务控制台，然后执行以下命令：
 
-'''shell
+```shell
 esxcfg-firewall -o 59000-60000,tcp,in,vncextras
-esxcfg-firewall -o 59000-60000,tcp,out,vncextras'''
+esxcfg-firewall -o 59000-60000,tcp,out,vncextras```
 
-
+<a name="配置vSphere的网卡绑定"></a>
 ## 配置vSphere的网卡绑定
 
 vSphere主机的网卡绑定可以按照vSphere安装指南完成。
-
+<a name=" 配置VMware数据中心使用VMware分布式虚拟交换机"></a>
 ## 配置VMware数据中心使用VMware分布式虚拟交换机
 
 CloudStack支持在VMware vSphere环境中为虚拟网络配置VMware vNetwork分布式交换机（VDS）。本章节能帮助你在CloudStack中配置VMware VDS。每个vCenter服务器实例最多支持128 VDS实例，每个VDS实例最多可以管理500台VMware服务器。
@@ -256,13 +277,13 @@ The three fields to fill in are:
 
    **vmware.use.nexus.vswitch**: 如果vmware.use.dvswitch设置为false，则忽略该参数。设置为true则是部署CloudStack时启用Cisco Nexus 1000v分布式交换机。
 
-
+<a name="在CloudStack中启用分布式虚拟交换机"></a>
 ### 在CloudStack中启用分布式虚拟交换机
 
 在部署CloudStack时启用VDS，请在CloudStack管理界面中的全局设置页面中设置vmware.use.dvswitch parameter为true并重启管理服务器。只有启用了vmware.use.dvswitch参数，你才能在管理界面中指定VDS，并且CloudStack会忽略你指定的VDS-specific参数。另外，如果vmware.use.dvswitch参数的值为true且vmware.use.nexus.dvswitch参数的值为false，那么CloudStack中虚拟网络架构使用VDS。另外一个定义VDS配置的全局参数是vmware.ports.per.dvportgroup。它表示在VMware环境里每个VMware dvPortGroup中默认端口数量。默认是256。这个数值直接关系到你创建的来宾网络的数量。
 
 CloudStack支持混合部署分布式虚拟交换机、标准虚拟交换机和Nexus 1000v虚拟交换机的虚拟网络。
-
+<a name="在CloudStack中配置分布式虚拟交换机"></a>
 ### 在CloudStack中配置分布式虚拟交换机
 
 在创建区域时需要添加必要的资源才能配置VDS。
@@ -300,12 +321,12 @@ vCenter数据中心
 来宾流量虚拟交换机名称
 用于宾流量的虚拟交换机名称。
 
-
+<a name="vSphere的存储准备(仅限iSCSI)"></a>
 ## vSphere的存储准备(仅限iSCSI)
 使用iSCSI需要在vCenter中做一些准备工作。您必须添加iSCSI目标并创建iSCSI数据存储。
 
 如果使用NFS，请跳过本章节。
-
+<a name="ESXi主机中启用iSCSI启动器"></a>
 ### ESXi主机中启用iSCSI启动器
 
 
@@ -324,7 +345,7 @@ vCenter数据中心
 * 勾选启用以便启用启动器。
 
 * 点击 确定 保存。
-
+<a name="添加iSCSI目标"></a>
 ### 添加iSCSI目标
 
 在属性对话框中，添加iSCSI目标信息：
@@ -346,18 +367,18 @@ vCenter数据中心
 
 ![iscsi datastore](../images/vmware-iscsi-datastore.png)
 
-
+<a name="vSphere多路径(可选)"></a>
 ### vSphere多路径(可选)
 
 vSphere的存储多路径可以根据vSphere的安装文档配置。
 
-
+<a name="添加主机或配置集群(vSphere)"></a>
 ## 添加主机或配置集群(vSphere)
 
 使用vCenter创建集群，向其中添加期望的主机。随后您可以将整个集群加入到Cloudstack中。(参考 “添加群集: vSphere”)。
 
-
-## VMware vSphere主机安装补丁程序
+<a name="VMware vSphere主机安装补丁程序"></a>
+# VMware vSphere主机安装补丁程序
 
 * 在CloudStack中断开与VMware vSphere 群集的连接。应断开足够长的时间以便在主机上安装补丁程序。
 
