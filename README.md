@@ -1,5 +1,12 @@
 # cloudstack
 
 ## 安装
-* [CloudStack4.5安装](https://github.com/unodba/cloudstack/blob/master/docs/install/install.md)
-[VMware vSphere 安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/hypervisor/vsphere.md)
+* [CloudStack4.5安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/install.md)
+
+* [VMware vSphere 安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/hypervisor/vsphere.md)
+
+* [XenServer 安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/hypervisor/xenserver.md)
+
+* [KVM 安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/hypervisor/kvm.md)
+
+* [LXC 安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/hypervisor/lxc.md)
