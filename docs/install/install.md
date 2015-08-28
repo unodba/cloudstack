@@ -167,20 +167,22 @@ Guest vm(10.1.2.x)→(10.1.2.1)Vrouter-nat(192.168.20.x) → (192.168.20.1)三�
 
 物理主机和管理服务器属于vlan 11 , 交换机连接计算节点的端口配置为trunk模式，允许所有vlan通过，本征vlan 为11；nfs为存储设备，连接交换机的接口配置为access模式，属于vlan 12。
 
-| 设备名称   | IP地址     |  	网关    |	vlan |用途                  |系统             | 备注       |
-| -------- | :-----      | :----:   |:----:|:----:                 | :----:           |:----:    |
-|cs        |192.168.11.10 |192.168.11.1|	11	| 管理节点,mysql,client | centos6.6 x64  |    8核,8G  |
-|vcenter   |192.168.11.9  |192.168.11.1|	11	|	vcenter              | VMWARE vCenter	| 	16核,8G |
-|xencenter |192.168.11.8  |192.168.11.1|	11	|	xencenter            | Xencenter      | 16核,8G  |
-|nfs       |192.168.12.10 |192.168.12.1|	12	|	存储,镜像，nfs，http |centos6.6 x64| 	16核,32G，320G|
-|nr1r01n01 |192.168.11.11 |192.168.11.1|	11	|	计算节点	           | VMWARE esxi 5.5| 	32核,64G|
-|nr1r01n02 |192.168.11.12 |192.168.11.1|	11	|	计算节点             | VMWARE esxi 5.5| 	32核,64G|
-|nr1r01n03 |192.168.11.13 |192.168.11.1|	11	|	计算节点 	           | VMWARE esxi 5.5| 	32核,64G|
-|nr1r01n04 |192.168.11.14 |192.168.11.1|	11	|	计算节点          	 | VMWARE esxi 5.5| 	32核,64G|
-|nr1r01n05 |192.168.11.15 |192.168.11.1|	11	|	计算节点             | VMWARE esxi 5.5| 	32核,64G|
-|nr1r01n06 |192.168.11.16 |192.168.11.1|	11	|	计算节点          	 | VMWARE esxi 5.5| 	32核,64G|
-|nr1r01n07 |192.168.11.17 |192.168.11.1|	11	|	计算节点             | VMWARE esxi 5.5| 	32核,64G|
-|nr1r01n08 |192.168.11.18 |192.168.11.1|	11	|	计算节点          	 | VMWARE esxi 5.5| 	32核,64G|
+| 设备名称   | IP地址     |  	网关    |	vlan |用途                    |系统             | 备注     |
+| -------- | :-----      | :----:   |:----:|:----:                  | :----:         |:----:    |
+|cs        |192.168.11.30 |192.168.11.1|	11	| 管理节点,mysql,client| centos6.6 x64  |   8核,8G |
+|nfs       |192.168.12.29  |192.168.12.1|	12	|	虚拟化节点           |centos6.6 x64   | 	16核,32G，320G|
+|vcenter   |192.168.11.28  |192.168.11.1|	11	|	vcenter             | VMWARE vCenter | 	16核,8G |
+|xencenter |192.168.11.27  |192.168.11.1|	11	|	xencenter           | Xencenter      |  16核,8G  |
+|nr1r02n19 |192.168.11.21  |192.168.11.1|	11	|	虚拟化节点	          | VMWARE esxi 5.5|  32核,64G|
+|nr1r02n21 |192.168.11.22  |192.168.11.1|	11	|	虚拟化节点           | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n01 |192.168.11.31 |192.168.11.1|	11	|	计算节点	           | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n02 |192.168.11.32 |192.168.11.1|	11	|	计算节点             | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n03 |192.168.11.33 |192.168.11.1|	11	|	计算节点 	           | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n04 |192.168.11.34 |192.168.11.1|	11	|	计算节点          	 | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n05 |192.168.11.35 |192.168.11.1|	11	|	计算节点             | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n06 |192.168.11.36 |192.168.11.1|	11	|	计算节点          	 | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n07 |192.168.11.37 |192.168.11.1|	11	|	计算节点             | VMWARE esxi 5.5| 	32核,64G|
+|nr1r01n08 |192.168.11.38 |192.168.11.1|	11	|	计算节点          	 | VMWARE esxi 5.5| 	32核,64G|
 
 ### Basic Zone
 Basic Zone需要配置3种网络流量类型，分别为Management Network、Guest Network、Storage Network，具体规划信息如下表：
@@ -199,10 +201,10 @@ Basic Zone需要配置3种网络流量类型，分别为Management Network、Gue
 
 |流量类型 |	VLAN |	        	CIDR  |		网关       |		起始IP    |		结束IP |备注|
 |------  |------  | :-----| :----:  |  :----:          |:----:            | :-----   |
-|Public Network |	20   |		192.168.20.0/24 |		192.168.20.1 |	192.168.20.10	 |192.168.20.250 |公共流量
-|Manage Network|	11	 |	192.168.11.0/24	 |	192.168.11.1 |		192.168.11.200	 |	192.168.11.229	 |	提供点，内部系统用的IP，如系统vm |
+|Public Network |	20   |		192.168.20.0/24 |		192.168.20.1 |	192.168.20.10	 |192.168.20.250 |公共流量，后期可继续添加
+|Manage Network|	11	 |	192.168.11.0/24	 |	192.168.11.1 |		192.168.11.120	 |	192.168.11.169	 |	提供点，内部系统用的IP，如系统vm |
 |Guest Network |	300-310	|	10.1.1.0/24	 |	10.1.1.1	 |	10.1.1.10	 |  10.1.1.250 |来宾流量，用户vm使用
-|Storage Network|	11	   |	192.168.11.0/24	 |	192.168.11.1	 |	192.168.11.230	 |	192.168.11.249	 | 存储流量 |
+|Storage Network|	11	   |	192.168.11.0/24	 |	192.168.11.1	 |	192.168.11.170	 |	192.168.11.199	 | 存储流量，后期可继续添加 |
 
 
 连接示意图如下图所示：
@@ -447,6 +449,89 @@ Starting mysqld:                                           [  OK  ]
 如果没有意外的话，最后会输出 CloudStack has successfully initialized database
 字样，表示数据库已经准备好了。
 版本4.5在安装时数据库升级可能会失败，确认错误，重复两次即可。
+
+
+数据库复制（可选）
+CloudStack支持MySQL节点间的数据库复制。这个通过标准的MySQL复制功能来实现。你这样做可能希望防止MySQL服务器或者存储损坏。MySQL复制使用master/slave的模型。master节点是直接为管理服务器所使用。slave节点为备用，接收来自master节点的所有写操作，并将它应用于本地冗余数据库。以下是实施数据库复制的步骤。
+
+注解
+
+创建复制并不等同于备份策略，你需要另外开发一个有别于复制的MySQL数据的备份机制。
+确保这是一个全新安装且没有数据的master数据库节点。
+编辑master数据库的my.cnf，在[mysqld]的datadir下增加如下部分。
+
+log_bin=mysql-bin
+server_id=1
+考虑到其他的服务器，服务器id必须是唯一的。推荐的方式是将master的ID设置为1，后续的每个slave节点序号大于1，使得所有服务器编号如：1，2，3等。
+重启MySQL服务。如果是RHEL/CentOS系统，命令为：
+
+# service mysqld restart
+如果是Debian/Ubuntu系统，命令为：
+
+# service mysql restart
+在master上创建一个用于复制的账户，并赋予权限。我们创建用户”cloud-repl”，密码为”password”。假设master和slave都运行在172.16.1.0/24网段。
+
+# mysql -u root
+mysql> create user 'cloud-repl'@'172.16.1.%' identified by 'password';
+mysql> grant replication slave on *.* TO 'cloud-repl'@'172.16.1.%';
+mysql> flush privileges;
+mysql> flush tables with read lock;
+离开当前正在运行的MySQL会话。
+在新的shell中打开第二个MySQL会话。
+检索当前数据库的位置点。
+
+# mysql -u root
+mysql> show master status;
++------------------+----------+--------------+------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++------------------+----------+--------------+------------------+
+| mysql-bin.000001 |      412 |              |                  |
++------------------+----------+--------------+------------------+
+注意你数据库实例所返回的文件及位置点。
+退出该会话。
+完成master安装。返回到master的第一个会话，取消锁定并退出MySQL。
+
+mysql> unlock tables;
+安装并配置slave节点。在slave服务器上，运行如下命令。
+
+# yum install mysql-server
+# chkconfig mysqld on
+编辑my.cnf，在[mysqld]的datadir下增加如下部分。
+
+server_id=2
+innodb_rollback_on_timeout=1
+innodb_lock_wait_timeout=600
+重启MySQL。对于RHEL/CentOS系统，使用”mysqld”
+
+# service mysqld restart
+对于Ubuntu/Debian系统，使用”mysql.”
+
+# service mysql restart
+引导slave连接master并进行复制。使用上面步骤中得到数据来替换IP地址，密码，日志文件，以及位置点。
+
+mysql> change master to
+    -> master_host='172.16.1.217',
+    -> master_user='cloud-repl',
+    -> master_password='password',
+    -> master_log_file='mysql-bin.000001',
+    -> master_log_pos=412;
+在slave上启动复制功能。
+
+mysql> start slave;
+在slave上可能需要开启3306端口，就像之前在master上所做的一样。
+
+这对复制来说不是必须的。但如果没有做，当需要进行数据库切换时，你仍然需要去做。
+故障切换
+这将为管理服务器提供一个复制的数据库，用于实现手动故障切换。管理员将CloudStack从一个故障MySQL实例切换到另一个。当数据库失效发生时，你应该：
+
+停止管理服务器（通过命令：service cloudstack-management stop）
+将数据库的复本服务器修改为master并重启
+确保数据库的副本服务器的3306端口开放给管理服务器。
+更改使得管理服务器使用这个新的数据库。最简单的操作是在管理服务器的/etc/cloudstack/management/db.properties文件中写入新的数据库IP地址。
+重启管理服务器：
+
+# service cloudstack-management start
+
 
 ### 启动CloudStack
 
