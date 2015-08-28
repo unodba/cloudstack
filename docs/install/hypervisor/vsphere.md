@@ -1,10 +1,17 @@
 VMware vSphere 安装和配置
 --------------------------------
 
+- [VMware vSphere要求](#VMware vSphere要求)
+  - [vSphere ESXi软件要求](#vSphere ESXi软件要求)
+  - [vSphere ESXi硬件要求](#vSphere ESXi硬件要求)
+  - [vSphere vCenter要求](#vSphere vCenter要求)
+  - [其他要求](#其他要求)
+
+
 如果计划使用VMware vSphere平台运行虚拟机，请在云中安装vSphere主机。
-
+<a name="VMware vSphere要求"></a>
 # VMware vSphere要求
-
+<a name="vSphere ESXi软件要求"></a>
 ## vSphere ESXi软件要求:
 
 -  vSphere ESXi 和vSphere vCenter版本,支持4.1, 5.0, 5.1 和 5.5，不支持4.0版本，支持vSphere ESX。
@@ -18,7 +25,7 @@ VMware vSphere 安装和配置
  > 警告:
    安装一切必要的补丁程序。缺乏最新补丁程序可能会导致数据和虚拟机丢失。
 
-
+<a name="vSphere ESXi硬件要求"></a>
 ## vSphere ESXi硬件要求:
 
 * 主机必须通过vSphere的兼容性认证。请查看[VMware硬件兼容性指南](http://www.vmware.com/resources/compatibility/search.php)。
@@ -30,7 +37,7 @@ VMware vSphere 安装和配置
 * 36GB本地磁盘空间
 * 至少一块网卡
 * 静态分配的IP
-
+<a name="vSphere vCenter要求"></a>
 ## vSphere vCenter要求:
 
 * 处理器 - 2颗2.0GHz的Intel或AMD x86 CPUs， 或更高的处理器。如果数据库跟VC在同一台服务器中，可能会需要更高的处理器。
@@ -41,7 +48,7 @@ VMware vSphere 安装和配置
 
 更多信息，请参考vCenter Server 和 vSphere Client [硬件要求](http://pubs.vmware.com/vsp40/wwhelp/wwhimpl/js/html/wwhelp.htm#href=install/c_vc_hw.html)。
 
-
+<a name="其他要求"></a>
 ## 其他要求：
 
 -  必须配置vCenter使用443端口与CloudStack管理服务器通讯。
