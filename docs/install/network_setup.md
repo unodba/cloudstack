@@ -6,7 +6,7 @@ make decisions and follow the right procedures to get your network set
 up correctly.
 正确的网络设置对于CloudStack能否成功安装至关重要。遵循本节包含的信息，指导你搭建正确的网络配置。
 
-# 基本和高级网络
+## 基本和高级网络
 
 CloudStack提供二种网络类型:
 
@@ -122,7 +122,7 @@ The statements configure GigabitEthernet1/0/1 as follows:
    are passed to all the pod-level layer-2 switches.
 Cisco默认允许所有VLAN，因此，VLAN（300-999）都被允许并访问所有的Pod级别的二层交换机。
 
-Layer-2 Switch
+### Layer-2 Switch
 二层交换
 
 The layer-2 switch is the access switching layer inside the pod.
@@ -174,8 +174,8 @@ That’s why you must specify VLAN 201 as the native VLAN on the layer-2
 switch.
 默​认​情​况下​，Cisco允​许​所有​VLAN通过。​如果本征VLAN ID不相同的2个​​端​口​连​接​在​一​起时​​，​Cisco交​换​机​提出控诉。​这​就​是​为​什​么​必​须​指​定​VLAN 201为​二交​换​机​的​本​征​VLAN。
 
-### Hardware Firewall
-### 硬件防火墙
+## Hardware Firewall
+## 硬件防火墙
 
 All deployments should have a firewall protecting the management server;
 see Generic Firewall Provisions. Optionally, some deployments may also
@@ -183,8 +183,8 @@ have a Juniper SRX firewall that will be the default gateway for the
 guest networks; see `“External Guest Firewall Integration for Juniper SRX (Optional)” <#external-guest-firewall-integration-for-juniper-srx-optional>`_.
 所有部署都应该有一个防火墙保护管理服务器；查看防火墙的一般规定。 根据情况不同，一些部署也可能用到Juniper SRX防火墙作为来宾网络的默认网关； 参阅 “集成外部来宾防火墙Juniper SRX （可选）”.
 
-Generic Firewall Provisions
-防火墙的一般规定
+### Generic Firewall Provisions
+### 防火墙的一般规定
 
 The hardware firewall is required to serve two purposes:
 硬件防火墙必需服务于两个目的：
@@ -204,8 +204,8 @@ provisioned into the cloud. Any brand of hardware firewall that supports
 NAT and site-to-site VPN can be used.
 为了达到上述目的，你必须设置固定配置的防火墙。用户被配置到云中，不需要改变防火墙规则和策略。任何支持NAT和站点到站点VPN的硬件防火墙，不论品牌，都可以使用。
 
-External Guest Firewall Integration for Juniper SRX (Optional)
-集成外部来宾防火墙Juniper SRX（可选）
+### External Guest Firewall Integration for Juniper SRX (Optional)
+### 集成外部来宾防火墙Juniper SRX（可选）
 
 .. note::
    Available only for guests using advanced networking.
@@ -224,8 +224,7 @@ load balancer. External Network elements can be deployed in a
 side-by-side or inline configuration.
 Juniper SRX可以和任意的外部负载均衡器一起使用。外部网络元素可以部署为并排或内联结构。
 
-|parallel-mode.png: adding a firewall and load balancer in parallel
-mode.|
+![parallel-mode](parallel-mode.png)
 
 CloudStack requires the Juniper SRX firewall to be configured as follows:
 
@@ -425,7 +424,7 @@ CloudStack requires the Juniper SRX firewall to be configured as follows:
 
 
 
-#### External Guest Firewall Integration for Cisco VNMC (Optional)
+### External Guest Firewall Integration for Cisco VNMC (Optional)
 
 
 Cisco Virtual Network Management Center (VNMC) provides centralized
@@ -775,8 +774,8 @@ the SSH credentials by registering on VNMC.
       ASA1000V(config-vnmc-policy-agent)# shared-secret key where key is the shared secret for authentication of the ASA 1000V connection to the Cisco VNMC
 
 
-### External Guest Load Balancer Integration (Optional)
-### 整合外部来宾负载均衡（可选）
+## External Guest Load Balancer Integration (Optional)
+## 整合外部来宾负载均衡（可选）
 
 CloudStack can optionally use a Citrix NetScaler or BigIP F5 load
 balancer to provide load balancing services to guests. If this is not
@@ -874,8 +873,8 @@ The installation and provisioning of the external load balancer is
 finished. You can proceed to add VMs and NAT or load balancing rules.
 外部负载平衡器的安装和配置完成后，你就可以开始添加虚拟机和NAT或负载均衡规则。
 
-### Management Server Load Balancing
-### 管理服务器负载均衡
+## Management Server Load Balancing
+## 管理服务器负载均衡
 
 CloudStack can use a load balancer to provide a virtual IP for multiple
 Management Servers. The administrator is responsible for creating the
@@ -906,18 +905,18 @@ still available but the system VMs will not be able to contact the
 management server.
 除了上面的设置，管理员还负责设置‘host’全局配置值，由管理服务器IP地址更改为负载均衡虚拟IP地址。如果‘host’值未设置为VIP的8250端口并且一台管理服务器崩溃时，用户界面依旧可用，但系统虚拟机将无法与管理服务器联系。
 
-Topology Requirements
-拓扑结构要求
+## Topology Requirements
+## 拓扑结构要求
 
-Security Requirements
-安全需求
+### Security Requirements
+### 安全需求
 
 The public Internet must not be able to access port 8096 or port 8250 on
 the Management Server.
 公共互联网必须不能访问管理服务器的8096和8250端口
 
-Runtime Internal Communications Requirements
-运行时内部通信需求
+### Runtime Internal Communications Requirements
+### 运行时内部通信需求
 
 -  The Management Servers communicate with each other to coordinate
    tasks. This communication uses TCP on ports 8250 and 9090.
@@ -935,8 +934,8 @@ Runtime Internal Communications Requirements
    port 8250 must be reachable.
    SSVM和CPVM通过8250端口与管理服务器联系。如果你使用了多个管理服务器，确保负载均衡器IP地址到管理服务器的8250端口是可达的。
 
-Storage Network Topology Requirements
-存储网络拓扑要求
+### Storage Network Topology Requirements
+### 存储网络拓扑要求
 
 The secondary storage NFS export is mounted by the secondary storage VM.
 Secondary storage traffic goes over the management traffic network, even
@@ -947,31 +946,30 @@ a route from the management traffic network to the storage network.
 
 SSVM需要挂载辅助存储中的NFS共享目录。即使有一个单独的存储网络，辅助存储的流量也会通过管理网络。如果存储网络可用，主存储的流量会通过存储网络。如果你选择辅助存储也使用存储网络，你必须确保有一条从管理网络到存储网络的路由。
 
-External Firewall Topology Requirements
-外部防火墙拓扑要求
+### External Firewall Topology Requirements
+### 外部防火墙拓扑要求
 
 When external firewall integration is in place, the public IP VLAN must
 still be trunked to the Hosts. This is required to support the Secondary
 Storage VM and Console Proxy VM.
 如果整合了外部防火墙设备，公共IP的VLAN必须通过trunk到达主机。这是支持SSVM和CPVM必须满足的。
 
-Advanced Zone Topology Requirements
-高级区域拓扑要求
+### Advanced Zone Topology Requirements
+### 高级区域拓扑要求
 
 With Advanced Networking, separate subnets must be used for private and
 public networks.
 使用高级网络，专用和公共网络必须分离子网。
 
-
-XenServer Topology Requirements
-XenServer拓扑要求
+### XenServer Topology Requirements
+### XenServer拓扑要求
 
 The Management Servers communicate with XenServer hosts on ports 22
 (ssh), 80 (HTTP), and 443 (HTTPs).
 管理服务器与XenServer服务器通过22（ssh）、80（http）和443（https）端口通信。
 
-VMware Topology Requirements
-VMware拓扑要求
+### VMware Topology Requirements
+### VMware拓扑要求
 
 -  The Management Server and secondary storage VMs must be able to
    access vCenter and all ESXi hosts in the zone. To allow the necessary
@@ -986,28 +984,28 @@ VMware拓扑要求
    (ssh) on the management traffic network.
    管理服务器与系统VM使用管理网络通过3922（ssh）端口通信。
 
-Hyper-V Topology Requirements
-Hyper-V拓扑要求
+### Hyper-V Topology Requirements
+### Hyper-V拓扑要求
 
 CloudStack Management Server communicates with Hyper-V Agent by using
 HTTPS. For secure communication between the Management Server and the
 Hyper-V host, open port 8250.
 CloudStack管理服务器通过https与Hyper-V代理通信。管理服务器与Hyper-V主机之间的安全通信端口为8250。
 
-KVM Topology Requirements
-KVM拓扑要求
+### KVM Topology Requirements
+### KVM拓扑要求
 
 The Management Servers communicate with KVM hosts on port 22 (ssh).
 管理服务器与KVM主机通过22（ssh）端口通信。
 
-LXC Topology Requirements
-LXC拓扑要求
+### LXC Topology Requirements
+### LXC拓扑要求
 
 The Management Servers communicate with LXC hosts on port 22 (ssh).
 管理服务器与LXC主机通过22（ssh）端口通信。
 
-Guest Network Usage Integration for Traffic Sentinel
-通过流量哨兵整合来宾网络使用情况
+## Guest Network Usage Integration for Traffic Sentinel
+## 通过流量哨兵整合来宾网络使用情况
 
 To collect usage data for a guest network, CloudStack needs to pull the
 data from an external network statistics collector installed on the
@@ -1037,7 +1035,6 @@ When the Usage Server runs, it collects this data.
 
 To set up the integration between CloudStack and Traffic Sentinel:
 配置整合CloudStack和流量哨兵：
-
 
 #. On your network infrastructure, install Traffic Sentinel and
    configure it to gather traffic data. For installation and
@@ -1079,21 +1076,19 @@ To set up the integration between CloudStack and Traffic Sentinel:
    Traffic Sentinel.
    direct.network.stats.interval: 你希望CloudStack多久收集一次流量数据。
 
-Setting Zone VLAN and Running VM Maximums
-设置区域中VLAN和虚拟机的最大值
+## Setting Zone VLAN and Running VM Maximums
+## 设置区域中VLAN和虚拟机的最大值
 
 In the external networking case, every VM in a zone must have a unique
 guest IP address. There are two variables that you need to consider in
 determining how to configure CloudStack to support this: how many Zone
 VLANs do you expect to have and how many VMs do you expect to have
 running in the Zone at any one time.
-在外部网络情况下，每个虚拟机都必须有独立的来宾IP地址。这里有两个参数你需要考虑如何在CloudStack中进行配置：在同一时刻，你希望区域中有多少VLAN和多少虚拟机在运行。
+在外部网络案例中，每个虚拟机都必须有独立的来宾IP地址。在CloudStack中有两个参数你需要考虑如何进行配置：在同一时刻，你希望区域中有多少VLAN和多少虚拟机在运行。
 
 Use the following table to determine how to configure CloudStack for
 your deployment.
 使用如下表格来确定如何在CloudStack部署时修改配置。
-
-.. cssclass:: table-striped table-bordered table-hover
 
 | guest.vlan.bits |   Maximum Running VMs per Zone  |  Maximum Zone VLANs
 |- |- |
@@ -1105,4 +1100,4 @@ your deployment.
 Based on your deployment's needs, choose the appropriate value of
 guest.vlan.bits. Set it as described in Edit the Global Configuration
 Settings (Optional) section and restart the Management Server.
-基于部署的需求，选择合适的guest.vlan.bits参数值。在全局配置设置中编辑该参数，并重启管理服务。
+基于部署需求，选择合适的guest.vlan.bits参数值。在全局配置中编辑该参数，并重启管理服务。
