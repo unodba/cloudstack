@@ -295,34 +295,22 @@ CloudStack支持混合部署分布式虚拟交换机、标准虚拟交换机和N
 
 在所有情况下，配置VDS时必须指定下列参数：
 
-![Configuring dvSwitch](../images/dvSwitchConfig.png)
+![Configuring dvSwitch](../images/dvswitchconfig.png)
 
 
-参数描述
-
-
-群集名称
-输入在vCenter中创建的群集名称。比如，”cloudcluster”。
-vCenter 主机
-输入已经部署VMware VDS的vCenter主机名称或者IP地址。
-vCenter用户名
-输入CloudStack连接到vCenter所使用的用户名。这个用户必须拥有所有管理员权限。
-vCenter 密码
-输入上面用户的密码。
-vCenter数据中心
-输入群集所属的vCenter数据中心名称。比如，”clouddcVM”。
-替代公共流量
-启用该选项时，整个区域中群集的公共流量将被替代。
-公共流量虚拟交换机类型
-在启用替代公共流量时该选项才会显示。选择VMware vNetwork Distributed Virtual Switch。如果全局设置中vmware.use.dvswitch参数为true，则默认选项为VMware vNetwork Distributed Virtual Switch。
-公共流量虚拟交换机名称
-用于公共流量的虚拟交换机名称。
-替代来宾流量
-启用该选项时，整个区域中群集的来宾流量将被替代。
-来宾流量虚拟交换机类型
-在启用替代来宾流量时该选项才会显示。选择VMware vNetwork Distributed Virtual Switch。如果全局设置中vmware.use.dvswitch参数为true，则默认选项为VMware vNetwork Distributed Virtual Switch。
-来宾流量虚拟交换机名称
-用于宾流量的虚拟交换机名称。
+| 参数描述 | |
+| --- | ---| 
+| 群集名称   |  输入在vCenter中创建的群集名称。比如，”cloudcluster”。|
+| vCenter主机 |   输入已经部署VMware VDS的vCenter主机名称或者IP地址。|
+| vCenter用户名 |   输入CloudStack连接到vCenter所使用的用户名。这个用户必须拥有所有管理员权限。|
+| vCenter 密码  |  输入上面用户的密码。|
+| vCenter数据中心 |    输入群集所属的vCenter数据中心名称。比如，”clouddcVM”。|
+| 替代公共流量   | 启用该选项时，整个区域中群集的公共流量将被替代。|
+| 公共流量虚拟交换机类型    |   在启用替代公共流量时该选项才会显示。选择VMware vNetwork Distributed Virtual Switch。如果全局设置中vmware.use.dvswitch参数为true，则默认选项为VMware vNetwork Distributed Virtual Switch。|
+| 公共流量虚拟交换机名称  |   用于公共流量的虚拟交换机名称。|
+| 替代来宾流量  |    启用该选项时，整个区域中群集的来宾流量将被替代。|
+| 来宾流量虚拟交换机类型   |     在启用替代来宾流量时该选项才会显示。选择VMware vNetwork Distributed Virtual Switch。如果全局设置中vmware.use.dvswitch参数为true，则默认选项为VMware vNetwork Distributed Virtual Switch。|
+| 来宾流量虚拟交换机名称 |   用于宾流量的虚拟交换机名称。|
 
 <a name="vSphere的存储准备(仅限iSCSI)"></a>
 ## vSphere的存储准备(仅限iSCSI)
