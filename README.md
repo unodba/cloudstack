@@ -1,7 +1,7 @@
 # cloudstack
 
 ## 安装
-* [CloudStack4.5安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/install.md)
+* [CloudStack安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/cloudstack_install.md)
 
 * [CloudStack网络配置](https://github.com/unodba/cloudstack/blob/master/docs/install/network_setup.md)
 
