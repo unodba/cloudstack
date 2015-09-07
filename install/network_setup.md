@@ -60,7 +60,8 @@ CloudStack提供二种网络类型:
 ```shell
       vtp mode transparent
       vlan 200-999
-      exit```
+      exit
+      ```
 
 #. 配置GigabitEthernet1/0/1。
 
