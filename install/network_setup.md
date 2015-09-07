@@ -70,7 +70,8 @@ CloudStack提供二种网络类型:
       switchport trunk encapsulation dot1q
       switchport mode trunk
       switchport trunk native vlan 201
-      exit```
+      exit
+      ```
 
 端口GigabitEthernet1/g1的配置说明：
 
@@ -101,7 +102,8 @@ CloudStack提供二种网络类型:
       switchport trunk encapsulation dot1q
       switchport mode trunk
       switchport trunk native vlan 201
-      exit```
+      exit
+      ```
 
 默​认​情​况下​，Cisco允​许​所有​VLAN通过。​如果本征VLAN ID不相同的2个​​端​口​连​接​在​一​起时​​，​Cisco交​换​机​提出控诉。​这​就​是​为​什​么​必​须​指​定​VLAN201为​二层交​换​机​的​本​征​VLAN。
 
@@ -130,7 +132,7 @@ CloudStack中提供了对Juniper SRX系列防火墙的直接管理。这使得Cl
 
 Juniper SRX可以和任意的外部负载均衡器一起使用。外部网络元素可以部署为并排或内联结构。
 
-![parallel-mode](parallel-mode.png)
+![parallel-mode](images/parallel-mode.png)
 
 ### 集成 Cisco VNMC (可选)外部来宾防火墙
 
@@ -276,7 +278,7 @@ CloudStack管理服务器通过https与Hyper-V代理通信。管理服务器与H
 -  在流量哨兵用户界面中，配置流量哨兵允许来宾用户使用脚本查询。CloudStack将通过执行远程查询为来宾用户的一个或多个IP和收集网络使用情况。
    点击 File > Users > Access Control > Reports Query, 然后从下拉列表中选择来宾。
 
--   在CloudStack中，使用API中的addTrafficMonitor命令添加流量哨兵主机。传入的流量哨兵URL类似于protocol + host + port (可选)；例如，http://10.147.28.100:8080。关于addTrafficMonitor命令用法，请参阅[API文档](http://cloudstack.apache.org/docs/api/index.html)。
+-   在CloudStack中，使用API中的addTrafficMonitor命令添加流量哨兵主机。传入的流量哨兵URL类似于protocol + host + port (可选)；例如，http://10.147.28.100:8080 。关于addTrafficMonitor命令用法，请参阅[API文档](http://cloudstack.apache.org/docs/api/index.html)。
 
    关于如何调用CloudStack API，请参阅[CloudStack API Developer's Guide](http://docs.cloudstack.apache.org/en/latest/index.html#developers)。
 
