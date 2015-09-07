@@ -90,7 +90,8 @@ CloudStack提供二种网络类型:
 ```shell
       vtp mode transparent
       vlan 300-999
-      exit```
+      exit
+      ```
 
 #.配置所有的端口使用dot1q协议，并设置201为本征VLAN。
 
