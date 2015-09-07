@@ -1,0 +1,196 @@
+CloudStack requires the Juniper SRX firewall to be configured as follows:
+
+.. note::
+   Supported SRX software version is 10.3 or higher.
+
+#. Install your SRX appliance according to the vendor's instructions.
+
+#. Connect one interface to the management network and one interface to
+   the public network. Alternatively, you can connect the same interface
+   to both networks and a use a VLAN for the public network.
+
+#. Make sure "vlan-tagging" is enabled on the private interface.
+
+#. Record the public and private interface names. If you used a VLAN for
+   the public interface, add a ".[VLAN TAG]" after the interface name.
+   For example, if you are using ge-0/0/3 for your public interface and
+   VLAN tag 301, your public interface name would be "ge-0/0/3.301".
+   Your private interface name should always be untagged because the
+   CloudStack software automatically creates tagged logical interfaces.
+
+#. Create a public security zone and a private security zone. By
+   default, these will already exist and will be called "untrust" and
+   "trust". Add the public interface to the public zone and the private
+   interface to the private zone. Note down the security zone names.
+
+#. Make sure there is a security policy from the private zone to the
+   public zone that allows all traffic.
+
+#. Note the username and password of the account you want the CloudStack
+   software to log in to when it is programming rules.
+
+#. Make sure the "ssh" and "xnm-clear-text" system services are enabled.
+
+#. If traffic metering is desired:
+
+   #. Create an incoming firewall filter and an outgoing firewall
+      filter. These filters should be the same names as your public
+      security zone name and private security zone name respectively.
+      The filters should be set to be "interface-specific". For example,
+      here is the configuration where the public zone is "untrust" and
+      the private zone is "trust":
+
+      .. sourcecode:: bash
+
+         root@cloud-srx# show firewall
+         filter trust {
+             interface-specific;
+         }
+         filter untrust {
+             interface-specific;
+         }
+
+   #. Add the firewall filters to your public interface. For example, a
+      sample configuration output (for public interface ge-0/0/3.0,
+      public security zone untrust, and private security zone trust) is:
+
+      .. sourcecode:: bash
+
+         ge-0/0/3 {
+             unit 0 {
+                 family inet {
+                     filter {
+                         input untrust;
+                         output trust;
+                     }
+                     address 172.25.0.252/16;
+                 }
+             }
+         }
+
+#. Make sure all VLANs are brought to the private interface of the SRX.
+
+#. After the CloudStack Management Server is installed, log in to the
+   CloudStack UI as administrator.
+
+#. In the left navigation bar, click Infrastructure.
+
+#. In Zones, click View More.
+
+#. Choose the zone you want to work with.
+
+#. Click the Network tab.
+
+#. In the Network Service Providers node of the diagram, click
+   Configure. (You might have to scroll down to see this.)
+
+#. Click SRX.
+
+#. Click the Add New SRX button (+) and provide the following:
+
+   -  IP Address: The IP address of the SRX.
+
+   -  Username: The user name of the account on the SRX that CloudStack
+      should use.
+
+   -  Password: The password of the account.
+
+   -  Public Interface. The name of the public interface on the SRX. For
+      example, ge-0/0/2. A ".x" at the end of the interface indicates
+      the VLAN that is in use.
+
+   -  Private Interface: The name of the private interface on the SRX.
+      For example, ge-0/0/1.
+
+   -  Usage Interface: (Optional) Typically, the public interface is
+      used to meter traffic. If you want to use a different interface,
+      specify its name here
+
+   -  Number of Retries: The number of times to attempt a command on the
+      SRX before failing. The default value is 2.
+
+   -  Timeout (seconds): The time to wait for a command on the SRX
+      before considering it failed. Default is 300 seconds.
+
+   -  Public Network: The name of the public network on the SRX. For
+      example, trust.
+
+   -  Private Network: The name of the private network on the SRX. For
+      example, untrust.
+
+   -  Capacity: The number of networks the device can handle
+
+   -  Dedicated: When marked as dedicated, this device will be dedicated
+      to a single account. When Dedicated is checked, the value in the
+      Capacity field has no significance implicitly, its value is 1
+
+#. Click OK.
+
+#. Click Global Settings. Set the parameter
+   external.network.stats.interval to indicate how often you want
+   CloudStack to fetch network usage statistics from the Juniper SRX. If
+   you are not using the SRX to gather network usage statistics, set to 0.
+
+
+   CloudStack要求按照如下信息配置Juniper SRX防火墙：
+
+   注解
+
+   支持SRX软件版本为10.3或者更高。
+   根据供应商提供的说明书安装你的SRX设备。
+   分别使用两个接口连接管理和公共网络，或者，你可以使用同一个接口来连接这两个网络，但需要为公共网络设置一个VLAN。
+   确保在专有接口上开启了 “vlan-tagging” 。
+   记录公共和专用接口名称。如果你在公共接口中使用了VLAN，应该在接口名称后面添加一个”.[VLAN TAG]”。例如，如果你使用 ge-0/0/3 作为公共接口并且VLAN 标签为301。那么你的公共接口名称应为”ge-0/0/3.301”。你的专用接口应始终不添加任何标签，因为CloudStack会自动在逻辑接口上添加标签。
+   创建公共安全区域和专用安全区域。默认情况下，这些已经存在并分别称为”untrust” 和 “trust”。为公共区域添加公共接口和为专用区域添加专用接口。并记录下安全区域名称。
+   确保专用区域到公共区域的安全策略允许所有流量通过。
+   请注意CloudStack登录所用账户的用户名和密码符合编程规则。
+   确保已经开启 “ssh” 和 “xnm-clear-text” 等系统服务。
+   如果需要统计流量：
+
+   创建传入的防火墙过滤和传出的防火墙过滤。这些策略应该有相同的名称分别作为你的公共安全区域名称和专用安全区域名称。过滤应该设置到 “特定接口”。 例如，在这个配置中公共区域是 “untrust”，专用区域是 “trust”:
+
+   root@cloud-srx# show firewall
+   filter trust {
+       interface-specific;
+   }
+   filter untrust {
+       interface-specific;
+   }
+   在你的公共接口添加防火墙过滤。例如，一个示例配置（ge-0/0/3.0为公共接口，untrust为公共安全区域，trust为专用安全区域）
+
+   ge-0/0/3 {
+       unit 0 {
+           family inet {
+               filter {
+                   input untrust;
+                   output trust;
+               }
+               address 172.25.0.252/16;
+           }
+       }
+   }
+   确保SRX中的专用接口允许所有VLAN通过。
+   安装好CloudStack管理端后，使用管理员帐号登录CloudStack用户界面。
+   在左侧导航栏中，点击基础架构
+   点击区域中的查看更多。
+   选择你要设置的区域。
+   点击网络选项卡。
+   点击示意图网络服务提供程序中的配置（你可能需要向下滚动才能看到）。
+   点击SRX。
+   点击（+）按钮添加一个新的SRX，并提供如下信息：
+
+   IP地址：SRX设备的IP地址。
+   用户名：CloudStack需要使用SRX设备中的账户。
+   密码：该账户的密码。
+   公共接口：SRX中的公共接口名称。例如，ge-0/0/2。 最后一个 ”.x” 表示该VLAN正在使用这个接口。
+   专用接口: SRX中的专用接口名称。例如, ge-0/0/1。
+   Usage Interface: (可选) 通常情况下，公共接口用来统计流量。如果你想使用其他的接口，则在此处修改。
+   重试次数：尝试控制SRX设备失败时重试的次数。默认值是2。
+   超时(秒): 尝试控制SRX设备失败时的重试间隔。默认为300秒。
+   公共网络: SRX中公共网络的名字。 例，trust。
+   专用网络：SRX中专用网络的名字。 例如，untrust。
+   容量：该设备能处理的网络数量。
+   专用: 当标记为专用后，这个设备只对单个帐号专用。该选项被勾选后，容量选项就没有了实际意义且值会被置为1。
+   点击确定。
+   点击全局设置。设置external.network.stats.interval参数，指定CloudStack从Juniper SRX收集网络使用情况的时间间隔。如果你不使用SRX统计网络使用情况，即设置为0.
+

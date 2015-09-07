@@ -1,0 +1,319 @@
+Using Cisco ASA 1000v Firewall, Cisco Nexus 1000v dvSwitch, and Cisco VNMC in a Deployment
+
+
+Guidelines
+'''''''''''
+
+-  Cisco ASA 1000v firewall is supported only in Isolated Guest
+   Networks.
+
+-  Cisco ASA 1000v firewall is not supported on VPC.
+
+-  Cisco ASA 1000v firewall is not supported for load balancing.
+
+-  When a guest network is created with Cisco VNMC firewall provider, an
+   additional public IP is acquired along with the Source NAT IP. The
+   Source NAT IP is used for the rules, whereas the additional IP is
+   used to for the ASA outside interface. Ensure that this additional
+   public IP is not released. You can identify this IP as soon as the
+   network is in implemented state and before acquiring any further
+   public IPs. The additional IP is the one that is not marked as Source
+   NAT. You can find the IP used for the ASA outside interface by
+   looking at the Cisco VNMC used in your guest network.
+
+-  Use the public IP address range from a single subnet. You cannot add
+   IP addresses from different subnets.
+
+-  Only one ASA instance per VLAN is allowed because multiple VLANS
+   cannot be trunked to ASA ports. Therefore, you can use only one ASA
+   instance in a guest network.
+
+-  Only one Cisco VNMC per zone is allowed.
+
+-  Supported only in Inline mode deployment with load balancer.
+
+-  The ASA firewall rule is applicable to all the public IPs in the
+   guest network. Unlike the firewall rules created on virtual router, a
+   rule created on the ASA device is not tied to a specific public IP.
+
+-  Use a version of Cisco Nexus 1000v dvSwitch that support the vservice
+   command. For example: nexus-1000v.4.2.1.SV1.5.2b.bin
+
+   Cisco VNMC requires the vservice command to be available on the Nexus
+   switch to create a guest network in CloudStack.
+
+
+   指南
+   Cisco ASA 1000v防火墙仅支持隔离的来宾网络。
+   Cisco ASA 1000v不支持VPC。
+   Cisco ASA 1000v不支持负载均衡。
+   当使用Cisco VNMC防火墙创建的来宾网络时，一个额外的公共IP和SNAT IP一起被获取。SNAT IP用于规则，而额外的IP用于ASA外部接口。确保这一额外的公共IP不会被释放。你可以在网络一旦处在执行状态和获取其他公共IP之前确定这个IP。这个额外的IP没有被标识为SNAT。在你的来宾网络中可以通过Cisco VNMC来查找ASA外部接口的IP地址。
+   使用单一网络中的公共IP地址段。不能添加不同网段的IP地址。
+   每个VLAN中只允许一个ASA实例。因为ASA端口不支持多VLAN的trunk模式。因此，一个来宾网络中只能有一个ASA实例。
+   每个区域中，只允许一个Cisco VNMC.
+   只支持在Inline模式下部署负载均衡器。
+   ASA防火墙策略适用于来宾网络中所有的公共IP地址。不同于虚拟路由器创建的防火墙规则，ASA设备创建的规则不绑定特定的公共IP地址。
+   使用一个支持vservice命令的Cisco Nexus 1000v分布式虚拟交换机版本。例如：nexus-1000v.4.2.1.SV1.5.2b.bin
+
+   使用Cisco VNMC在CloudStack中创建来宾网络，要求vservice命令在Nexus交换机中是可用的。
+
+Prerequisites
+先决条件
+
+#. Configure Cisco Nexus 1000v dvSwitch in a vCenter environment.
+
+   Create Port profiles for both internal and external network
+   interfaces on Cisco Nexus 1000v dvSwitch. Note down the inside port
+   profile, which needs to be provided while adding the ASA appliance to
+   CloudStack.
+
+   For information on configuration, see
+   `“Configuring a vSphere Cluster with Nexus 1000v Virtual Switch”
+   <hypervisor_installation.html#configuring-a-vsphere-cluster-with-nexus-1000v-virtual-switch>`_.
+
+#. Deploy and configure Cisco VNMC.
+
+   For more information, see
+   `Installing Cisco Virtual Network Management Center
+   <http://www.cisco.com/en/US/docs/switches/datacenter/vsg/sw/4_2_1_VSG_2_1_1/install_upgrade/guide/b_Cisco_VSG_for_VMware_vSphere_Rel_4_2_1_VSG_2_1_1_and_Cisco_VNMC_Rel_2_1_Installation_and_Upgrade_Guide_chapter_011.html>`_
+   and `Configuring Cisco Virtual Network Management Center
+   <http://www.cisco.com/en/US/docs/unified_computing/vnmc/sw/1.2/VNMC_GUI_Configuration/b_VNMC_GUI_Configuration_Guide_1_2_chapter_010.html>`_.
+
+#. Register Cisco Nexus 1000v dvSwitch with Cisco VNMC.
+
+   For more information, see `Registering a Cisco Nexus 1000V with Cisco VNMC
+   <http://www.cisco.com/en/US/docs/switches/datacenter/vsg/sw/4_2_1_VSG_1_2/vnmc_and_vsg_qi/guide/vnmc_vsg_install_5register.html#wp1064301>`_.
+
+#. Create Inside and Outside port profiles in Cisco Nexus 1000v dvSwitch.
+
+   For more information, see
+   `“Configuring a vSphere Cluster with Nexus 1000v Virtual Switch”
+   <hypervisor_installation.html#configuring-a-vsphere-cluster-with-nexus-1000v-virtual-switch>`_.
+
+#. Deploy and Cisco ASA 1000v appliance.
+
+   For more information, see `Setting Up the ASA 1000V Using VNMC
+   <http://www.cisco.com/en/US/docs/security/asa/quick_start/asa1000V/setup_vnmc.html>`_.
+
+   Typically, you create a pool of ASA 1000v appliances and register
+   them with CloudStack.
+
+   Specify the following while setting up a Cisco ASA 1000v instance:
+
+   -  VNMC host IP.
+
+   -  Ensure that you add ASA appliance in VNMC mode.
+
+   -  Port profiles for the Management and HA network interfaces. This
+      need to be pre-created on Cisco Nexus 1000v dvSwitch.
+
+   -  Internal and external port profiles.
+
+   -  The Management IP for Cisco ASA 1000v appliance. Specify the
+      gateway such that the VNMC IP is reachable.
+
+   -  Administrator credentials
+
+   -  VNMC credentials
+
+#. Register Cisco ASA 1000v with VNMC.
+
+   After Cisco ASA 1000v instance is powered on, register VNMC from the
+   ASA console.
+
+
+Using Cisco ASA 1000v Services
+''''''''''''''''''''''''''''''
+
+#. Ensure that all the prerequisites are met.
+
+   See `“Prerequisites” <#prerequisites>`_.
+
+#. Add a VNMC instance.
+
+   See `“Adding a VNMC Instance” <#adding-a-vnmc-instance>`_.
+
+#. Add a ASA 1000v instance.
+
+   See `“Adding an ASA 1000v Instance” <#adding-an-asa-1000v-instance>`_.
+
+#. Create a Network Offering and use Cisco VNMC as the service provider
+   for desired services.
+
+   See `“Creating a Network Offering Using Cisco ASA 1000v”
+   <#creating-a-network-offering-using-cisco-asa-1000v>`_.
+
+#. Create an Isolated Guest Network by using the network offering you
+   just created.
+
+
+Adding a VNMC Instance
+^^^^^^^^^^^^^^^^^^^^^^
+
+#. Log in to the CloudStack UI as administrator.
+
+#. In the left navigation bar, click Infrastructure.
+
+#. In Zones, click View More.
+
+#. Choose the zone you want to work with.
+
+#. Click the Physical Network tab.
+
+#. In the Network Service Providers node of the diagram, click
+   Configure.
+
+   You might have to scroll down to see this.
+
+#. Click Cisco VNMC.
+
+#. Click View VNMC Devices.
+
+#. Click the Add VNMC Device and provide the following:
+
+   -  Host: The IP address of the VNMC instance.
+
+   -  Username: The user name of the account on the VNMC instance that
+      CloudStack should use.
+
+   -  Password: The password of the account.
+
+#. Click OK.
+
+
+Adding an ASA 1000v Instance
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. Log in to the CloudStack UI as administrator.
+
+#. In the left navigation bar, click Infrastructure.
+
+#. In Zones, click View More.
+
+#. Choose the zone you want to work with.
+
+#. Click the Physical Network tab.
+
+#. In the Network Service Providers node of the diagram, click
+   Configure.
+
+   You might have to scroll down to see this.
+
+#. Click Cisco VNMC.
+
+#. Click View ASA 1000v.
+
+#. Click the Add CiscoASA1000v Resource and provide the following:
+
+   -  **Host**: The management IP address of the ASA 1000v instance. The
+      IP address is used to connect to ASA 1000V.
+
+   -  **Inside Port Profile**: The Inside Port Profile configured on
+      Cisco Nexus1000v dvSwitch.
+
+   -  **Cluster**: The VMware cluster to which you are adding the ASA
+      1000v instance.
+
+      Ensure that the cluster is Cisco Nexus 1000v dvSwitch enabled.
+
+#. Click OK.
+
+
+Creating a Network Offering Using Cisco ASA 1000v
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To have Cisco ASA 1000v support for a guest network, create a network
+offering as follows:
+
+#. Log in to the CloudStack UI as a user or admin.
+
+#. From the Select Offering drop-down, choose Network Offering.
+
+#. Click Add Network Offering.
+
+#. In the dialog, make the following choices:
+
+   -  **Name**: Any desired name for the network offering.
+
+   -  **Description**: A short description of the offering that can be
+      displayed to users.
+
+   -  **Network Rate**: Allowed data transfer rate in MB per second.
+
+   -  **Traffic Type**: The type of network traffic that will be carried
+      on the network.
+
+   -  **Guest Type**: Choose whether the guest network is isolated or
+      shared.
+
+   -  **Persistent**: Indicate whether the guest network is persistent
+      or not. The network that you can provision without having to
+      deploy a VM on it is termed persistent network.
+
+   -  **VPC**: This option indicate whether the guest network is Virtual
+      Private Cloud-enabled. A Virtual Private Cloud (VPC) is a private,
+      isolated part of CloudStack. A VPC can have its own virtual
+      network topology that resembles a traditional physical network.
+      For more information on VPCs, see `“About Virtual Private Clouds”
+      <http://docs.cloudstack.apache.org/projects/cloudstack-administration/en/latest/networking2.html#about-virtual-private-clouds>`_.
+
+   -  **Specify VLAN**: (Isolated guest networks only) Indicate whether
+      a VLAN should be specified when this offering is used.
+
+   -  **Supported Services**: Use Cisco VNMC as the service provider for
+      Firewall, Source NAT, Port Forwarding, and Static NAT to create an
+      Isolated guest network offering.
+
+   -  **System Offering**: Choose the system service offering that you
+      want virtual routers to use in this network.
+
+   -  **Conserve mode**: Indicate whether to use conserve mode. In this
+      mode, network resources are allocated only when the first virtual
+      machine starts in the network.
+
+#. Click OK
+
+   The network offering is created.
+
+
+Reusing ASA 1000v Appliance in new Guest Networks
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can reuse an ASA 1000v appliance in a new guest network after the
+necessary cleanup. Typically, ASA 1000v is cleaned up when the logical
+edge firewall is cleaned up in VNMC. If this cleanup does not happen,
+you need to reset the appliance to its factory settings for use in new
+guest networks. As part of this, enable SSH on the appliance and store
+the SSH credentials by registering on VNMC.
+
+#. Open a command line on the ASA appliance:
+
+   #. Run the following:
+
+      .. sourcecode:: bash
+
+         ASA1000V(config)# reload
+
+      You are prompted with the following message:
+
+      .. sourcecode:: bash
+
+         System config has been modified. Save? [Y]es/[N]o:"
+
+   #. Enter N.
+
+      You will get the following confirmation message:
+
+      .. sourcecode:: bash
+
+         "Proceed with reload? [confirm]"
+
+   #. Restart the appliance.
+
+#. Register the ASA 1000v appliance with the VNMC:
+
+   .. sourcecode:: bash
+
+      ASA1000V(config)# vnmc policy-agent
+      ASA1000V(config-vnmc-policy-agent)# registration host vnmc_ip_address
+      ASA1000V(config-vnmc-policy-agent)# shared-secret key where key is the shared secret for authentication of the ASA 1000V connection to the Cisco VNMC
