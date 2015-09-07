@@ -1,16 +1,29 @@
-# cloudstack
+cloudstack
+===============
 
-## 安装
-* [CloudStack安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/cloudstack_install.md)
+cloudstack相关文档。
 
-* [CloudStack网络配置](https://github.com/unodba/cloudstack/blob/master/docs/install/network_setup.md)
 
-* [CloudStack存储配置](https://github.com/unodba/cloudstack/blob/master/docs/install/storage_setup.md)
 
-* [VMware vSphere 安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/hypervisor/vsphere.md)
+Support
+-------
 
-* [XenServer 安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/hypervisor/xenserver.md)
 
-* [KVM 安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/hypervisor/kvm.md)
 
-* [LXC 安装和配置](https://github.com/unodba/cloudstack/blob/master/docs/install/hypervisor/lxc.md)
+LICENSE
+-------------
+
+Licensed [BY-NC-SA Creative Commons](http://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+Contributions
+--------------
+
+Feel free to create issues or pull-requests if you have any problems.
+
+
+
+
+Author
+---------------
+
+[@unodba](https://twitter.com/unodba)
