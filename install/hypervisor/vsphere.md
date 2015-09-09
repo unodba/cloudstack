@@ -29,21 +29,21 @@ VMware vSphere 安装和配置
 <a name="VMware vSphere要求"></a>
 # VMware vSphere要求
 <a name="vSphere ESXi软件要求"></a>
-## vSphere ESXi软件要求:
+## vSphere ESXi软件要求
 
--  vSphere ESXi 和vSphere vCenter版本,支持4.1, 5.0, 5.1 和 5.5，不支持4.0版本，支持vSphere ESX。
+-  vSphere ESXi 和vSphere vCenter版本,支持4.1、5.0、 5.1 和 5.5，不支持4.0版本，支持vSphere ESX。
 
-  建议使用vSphere标准版。需要考虑vSphere授权对CPU的限制。请参考 [vsphere_pricing](http://www.vmware.com/files/pdf/vsphere_pricing.pdf) 。
+  建议使用vSphere标准版，需要考虑vSphere授权对CPU的限制。价格请参考 [vsphere_pricing](http://www.vmware.com/files/pdf/vsphere_pricing.pdf) 。
 
 -  保持版本最新
 
-  确保安装hypervisor供应商发布的所有补丁程序。随时关注供应商支持信息，一旦发布补丁就立即安装。CloudStack不会跟踪或提醒你安装这些补丁。安装最新的补丁程序对主机至关重要。hypervisor供应商可能不会对过期的系统提供技术支持。
+  确保安装已发布的所有补丁程序。
 
- > 警告:
-   安装一切必要的补丁程序。缺乏最新补丁程序可能会导致数据和虚拟机丢失。
+ > 警告：
+   安装一切必要的补丁程序，缺乏最新补丁程序可能会导致数据和虚拟机丢失。
 
 <a name="vSphere ESXi硬件要求"></a>
-## vSphere ESXi硬件要求:
+## vSphere ESXi硬件要求
 
 * 主机必须通过vSphere的兼容性认证。请查看[VMware硬件兼容性指南](http://www.vmware.com/resources/compatibility/search.php)。
 * 所有主机必须为64位架构并且支持HVM(启用Intel-VT或AMD-V)。
@@ -55,18 +55,18 @@ VMware vSphere 安装和配置
 * 至少一块网卡
 * 静态分配的IP
 <a name="vSphere vCenter要求"></a>
-## vSphere vCenter要求:
+## vSphere vCenter要求
 
 * 处理器 - 2颗2.0GHz的Intel或AMD x86 CPUs， 或更高的处理器。如果数据库跟VC在同一台服务器中，可能会需要更高的处理器。
 * 内存 - 3GB。如果数据库跟VC在同一台服务器中，可能会需要更多内存。
 * 磁盘空间 - 2GB。如果数据库跟VC在同一台服务器中，可能会需要更多的磁盘空间。
-* Microsoft SQL Server 2005 Express磁盘要求。最多需要 2 GB 的可用磁盘空间解压安装文件。
+* Microsoft SQL Server 2005 Express磁盘要求。最多需要2GB 的可用磁盘空间解压安装文件。
 * 网络 - 1Gbit或者10Gbit。
 
 更多信息，请参考vCenter Server 和 vSphere Client [硬件要求](http://pubs.vmware.com/vsp40/wwhelp/wwhimpl/js/html/wwhelp.htm#href=install/c_vc_hw.html)。
 
 <a name="其他要求"></a>
-## 其他要求：
+## 其他要求
 
 -  必须配置vCenter使用443端口与CloudStack管理服务器通讯。
 
@@ -93,10 +93,10 @@ VMware vSphere 安装和配置
 
 | vCenter要求      |备注|
 |              --- | ---|
-| vCenter用户      | 用户必须拥有管理员权限|
+| vCenter用户       | 用户必须拥有管理员权限|
 | vCenter用户的密码 | 上述用户的密码       |
 | vCenter数据库名称 | 数据中心名称         |
-| vCenter群集名称   | 群集名称            |
+| vCenter群集名称   | 群集名称             |
 
 <a name="VMware网络清单"></a>
 ## VMware网络清单
@@ -149,7 +149,7 @@ CloudStack允许你使用vCenter为每个ESXi主机配置三个独立的网络�
 
 * 增加端口
 
-ESXi主机的虚拟交换机默认有56个端口。我们建议设为最大允许数4088。要设置该值，请点击虚拟交换机的“属性…”链接(注意，不是网络的属性)。
+ESXi主机的虚拟交换机默认有56个端口。我们建议设为最大允许数4088，有些可能无法设置，改为允许的最大值即可。要设置该值，请点击虚拟交换机的“属性…”链接(注意，不是网络的属性)。
 
 ![vSphere client](../images/vmware-increase-ports.png)
 
@@ -157,12 +157,12 @@ ESXi主机的虚拟交换机默认有56个端口。我们建议设为最大允�
 
 ![vSphereclient](../images/vmware-vswitch-properties.png)
 
-在该对话框中，您可以修改端口数量。修改完后，为使配置生效，需要重启ESXi主机。
+在该对话框中，您可以修改端口数量。修改完后，需要重启ESXi主机使配置生效，。
 
 <a name="vSphere vCenter管理网络配置"></a>
 ## vSphere vCenter管理网络配置
 
-在vSwith属性对话框中，您可以看到一个vCenter管理网络。CloudStack的管理网络也使用该网络。CloudStack要求正确配置vCenter的管理网络。在对话框中点击管理网络，然后点击编辑。
+在vSwith属性对话框中，可以看到一个vCenter管理网络。CloudStack的管理网络也使用该网络。CloudStack要求正确配置vCenter的管理网络。在对话框中点击管理网络，然后点击编辑。
 
 ![vSphereclient](../images/vmware-mgt-network-properties.png)
 
@@ -172,16 +172,16 @@ ESXi主机的虚拟交换机默认有56个端口。我们建议设为最大允�
 * 启用vMotion。
 * 启用管理流量。
 
-如果ESXi主机具有多个VMKernel端口，并且ESXi没有使用默认的“Management Network”作为管理网络名称，您必须按照以下指南配置管理网络端口组，以便CloudStack可以发现管理网络。
+如果ESXi主机具有多个VMKernel端口，且ESXi没有使用默认的“Management Network”作为管理网络名称，必须按照以下指南配置管理网络端口组，以便CloudStack可以发现管理网络。
 
-在所有ESXi主机上使用同一个管理网络端口组名称。
-在CloudStack管理界面中，点击配置-全局设置，修改vmware.management.portgroup为ESXi主机管理网络的标签。
+- 在所有ESXi主机上使用同一个管理网络端口组名称。
+- 在CloudStack管理界面中，点击配置-全局设置，修改vmware.management.portgroup为ESXi主机管理网络的标签。
 
 <a name="为CloudStack控制台代理扩展端口范围"></a>
 ## 为CloudStack控制台代理扩展端口范围
-（仅适用于VMware vSphere 4.x）
+> 仅适用于VMware vSphere 4.x
 
-为使控制台代理可以和主机一起工作，您需要扩展主机的防火墙端口范围。这是为了使控制台代理可以访问VMware的VM。为扩展端口范围，请登录到每台主机的VMware ESX服务控制台，然后执行以下命令：
+为使控制台代理可以和主机一起工作，需要扩展主机的防火墙端口范围。这是为了使控制台代理可以访问VMware的VM。为扩展端口范围，请登录到每台主机的VMware ESX服务控制台，然后执行以下命令：
 
 ```shell
 esxcfg-firewall -o 59000-60000,tcp,in,vncextras
@@ -299,7 +299,7 @@ CloudStack支持混合部署分布式虚拟交换机、标准虚拟交换机和N
 
 
 | 参数描述 | |
-| --- | ---| 
+| --- | ---|
 | 群集名称   |  输入在vCenter中创建的群集名称。比如，”cloudcluster”。|
 | vCenter主机 |   输入已经部署VMware VDS的vCenter主机名称或者IP地址。|
 | vCenter用户名 |   输入CloudStack连接到vCenter所使用的用户名。这个用户必须拥有所有管理员权限。|
