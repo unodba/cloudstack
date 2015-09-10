@@ -1,6 +1,6 @@
 # 网络配置
 
-正确的网络设置对于CloudStack能否成功安装至关重要。遵循本节包含的信息，指导你正确的网络配置。
+正确的网络设置对于CloudStack能否成功安装至关重要。
 
 ## 基本和高级网络
 
@@ -12,7 +12,7 @@ CloudStack提供二种网络类型:
 **Advanced**
 适用于更复杂的网络拓扑。这种网络模型在定义来宾网络时提供了最大限度的灵活性，但是比基本网络需要更多的配置。
 
-每个区域都有基本或高级网络。一个区域的整个生命周期中，不论是基本或高级网络。一旦在CloudStack中选择并配置区域的网络类型，就无法再修改。
+每个区域都有基本或高级网络。一个区域的整个生命周期中，不论是基本或高级网络。一旦在CloudStack中选择并配置区域的网络类型，就无法再更改。
 
 下表是两种网络类型的功能比较。
 
@@ -45,7 +45,7 @@ CloudStack提供二种网络类型:
 | 600-799          |    VLANs carrying guest traffic.                             |  CloudStack accounts. Account-specific VLAN is chosen from this pool.
 | 800-899          |    VLANs carrying guest traffic.                            |   CloudStack accounts. Account-specific VLAN chosen by CloudStack admin to assign to that account.
 | 900-999           |   VLAN carrying guest traffic                              |   CloudStack accounts. Can be scoped by project, domain, or all accounts.
-| greater than 1000 |   Reserved for future use|  |
+| greater than 1000 |   Reserved for future use| - |
 
 ## 硬件配置示例
 
@@ -58,19 +58,27 @@ CloudStack提供二种网络类型:
 -  设置VTP为透明模式，以便可以使用超过1000的VLAN。因为我们只用到999，VTP透明模式不做严格要求。
 
 ```shell
-      vtp mode transparent
-      vlan 200-999
-      exit
+en
+show running-config
+show vlan
+show interfaces switchport
+show interfaces trunk
+show vtp status
+//先确认原来配置
+configure terminal
+vtp mode transparent
+vlan 200-999
+exit
       ```
 
 -  配置GigabitEthernet1/0/1。
 
 ```shell
-      interface GigabitEthernet1/0/1
-      switchport trunk encapsulation dot1q
-      switchport mode trunk
-      switchport trunk native vlan 201
-      exit
+interface GigabitEthernet1/0/1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk native vlan 201
+exit
       ```
 
 端口GigabitEthernet1/g1的配置说明：
@@ -90,20 +98,27 @@ CloudStack提供二种网络类型:
 -  设置VTP为透明模式，以便我们使用超过1000的VLAN。因为我们只用到999，VTP透明模式并不做严格要求。
 
 ```shell
-      vtp mode transparent
-      vlan 300-999
-      exit
-      ```
+en
+show running-config
+show vlan
+show interfaces switchport
+show interfaces trunk
+show vtp status
+//先确认原来配置
+vtp mode transparent
+vlan 300-999
+exit
+```
 
 -  配置所有的端口使用dot1q协议，并设置201为本征VLAN。
 
 ```shell
-      interface range GigabitEthernet 1/0/1-24
-      switchport trunk encapsulation dot1q
-      switchport mode trunk
-      switchport trunk native vlan 201
-      exit
-      ```
+interface range GigabitEthernet 1/0/1-24
+switchport trunk encapsulation dot1q
+switchport mode trunk
+switchport trunk native vlan 201
+exit
+```
 
 默​认​情​况下​，Cisco允​许​所有​VLAN通过。​如果本征VLAN ID不相同的2个​​端​口​连​接​在​一​起时​​，​Cisco交​换​机​提出控诉。​这​就​是​为​什​么​必​须​指​定​VLAN201为​二层交​换​机​的​本​征​VLAN。
 
@@ -126,7 +141,7 @@ CloudStack提供二种网络类型:
 
 ### 集成Juniper SRX（可选）外部来宾防火墙
 
-> note:客户使用高级网络时才有效。
+>注意：客户使用高级网络时才有效。
 
 CloudStack中提供了对Juniper SRX系列防火墙的直接管理。这使得CloudStack能建立公共IP到客户虚拟机的静态NAT映射，并利用Juniper设备替代虚拟路由器提供防火墙服务。每个区域中可以有一个或多个Juniper SRX设备。这个特性是可选的。如果不提供Juniper设备集成，CloudStack会使用虚拟路由器提供这些服务。
 
