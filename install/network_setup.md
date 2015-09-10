@@ -53,7 +53,7 @@ CloudStack提供二种网络类型:
 
 ### 三层交换（Cisco 3750）
 
-以下步骤显示如何配置Cisco 3750作为区域级别的三层交换机。这些步骤假设VLAN 201用于Pod1中未标记的私有IP线路。并且Pod1中的二层交换机已经连接到GigabitEthernet1/0/1端口。
+以下步骤显示如何配置Cisco 3750作为区域级别的三层交换机。这些步骤假设VLAN 201用于Pod1中未标记的私有IP线路。并且Pod1中的二层交换机已经连接到GigabitEthernet0/1端口。
 
 -  设置VTP为透明模式，以便可以使用超过1000的VLAN。因为我们只用到999，VTP透明模式不做严格要求。
 
@@ -71,12 +71,13 @@ vlan 200-999
 exit
       ```
 
--  配置GigabitEthernet1/0/1。
+-  配置GigabitEthernet0/1。
 
 ```shell
-interface GigabitEthernet1/0/1
+interface GigabitEthernet0/1
 switchport trunk encapsulation dot1q
 switchport mode trunk
+switchport trunk allowed vlan all
 switchport trunk native vlan 201
 exit
       ```
@@ -98,13 +99,15 @@ exit
 -  设置VTP为透明模式，以便我们使用超过1000的VLAN。因为我们只用到999，VTP透明模式并不做严格要求。
 
 ```shell
-en
+Switch> en
+Switch#
 show running-config
 show vlan
 show interfaces switchport
 show interfaces trunk
 show vtp status
 //先确认原来配置
+configure terminal
 vtp mode transparent
 vlan 300-999
 exit
@@ -113,10 +116,13 @@ exit
 -  配置所有的端口使用dot1q协议，并设置201为本征VLAN。
 
 ```shell
-interface range GigabitEthernet 1/0/1-24
+Switch#
+interface range GigabitEthernet0/1-24
 switchport trunk encapsulation dot1q
 switchport mode trunk
+switchport trunk allowed vlan all
 switchport trunk native vlan 201
+copy running-config startup-config
 exit
 ```
 
