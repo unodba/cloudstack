@@ -1,6 +1,18 @@
 CloudStack 安装和配置
 --------------------------------
-
+- [环境要求](#环境要求)
+  - [管理节点OS版本及软件版本](#管理节点OS版本及软件版本)
+  - [虚拟化版本](#虚拟化版本)
+  - [外部设备](#外部设备)
+  - [浏览器](#浏览器)
+- [环境规划](#环境规划)
+  - [设备配置说明](#设备配置说明)
+    - [路由器](#路由器)
+    - [交换机](#交换机)
+    - [流量分类规划](#流量分类规划)  
+  - [主机规划](#主机规划)
+  - [Basic Zone](#Basic Zone)
+  - [Advanced Zone](#Advanced Zone)
 - [部署CloudStack](#部署CloudStack)
   - [配置系统相关服务](#配置系统相关服务)
   - [安装CloudStack](#安装CloudStack)
@@ -13,6 +25,154 @@ CloudStack 安装和配置
   - [创建Basic Zone](#创建Basic Zone)
   - [创建Advanced Zone](#创建Advanced Zone)
 - [FAQ](#FAQ)
+
+<a name="环境要求"></a>
+# 环境要求
+
+<a name="管理节点OS版本及软件版本"></a>
+## 管理节点OS版本及软件版本
+* RHEL versions 6.3, 6.5, 6.6 and 7.0
+* CentOS versions 6.6, 7.0
+* Ubuntu 14.04 LTS
+* Java 1.7
+* MySQL 5.6 (RHEL 7)
+* MySQL 5.1 (RHEL 6.x)
+
+<a name="虚拟化版本"></a>
+## 虚拟化版本
+* LXC Host Containers on RHEL 7
+* Windows Server 2012 R2 (with Hyper-V Role enabled)
+* Hyper-V 2012 R2
+* CentOS 6.2+ with KVM
+* Red Hat Enterprise Linux 6.2 with KVM
+* XenServer versions 6.1, 6.2 SP1 and 6.5 with latest hotfixes
+* VMware versions 5.0 Update 3a, 5.1 Update 2a, and 5.5 Update 2
+* Bare metal hosts are supported, which have no hypervisor.
+These hosts can run the following operating systems:
+* RHEL or CentOS, v6.2 or 6.3
+     > Note：Use libvirt version 0.9.10 for CentOS 6.3
+
+* Fedora 17
+* Ubuntu 12.04
+
+<a name="外部设备"></a>
+## 外部设备
+
+* Netscaler VPX and MPX versions 9.3, 10.1e and 10.5
+* Netscaler SDX version 9.3, 10.1e and 10.5
+* SRX (Model srx100b) versions 10.3 to 10.4 R7.5
+* F5 11.X
+* Force 10 Switch version S4810 for Baremetal Advanced Networks
+
+<a name="浏览器"></a>
+## 浏览器
+
+* Internet Explorer versions 10 and 11
+* Firefox version 31 or later
+* Google Chrome version 36.0.1985
+* Safari 6+
+
+<a name="环境规划"></a>
+# 环境规划
+
+<a name="设备配置说明"></a>
+## 设备配置说明
+
+<a name="路由器"></a>
+### 路由器
+
+路由器连接公网和内部网络，路由器内部ip地址为：192.168.6.1 ，与三层交换机g0/1连接。
+
+|设备    | 物理接口 |  地址            | 功能             |备注    |
+|------  | :-----  | :----:           |  :----:          |:----:  |
+| 路由器 | e0/0    |  222.222.222.220 |  连接internet     |       |
+|        | e0/1    |  192.168.6.1/24  | 内部接口，连接交换机|     |
+
+<a name="交换机"></a>
+### 交换机
+
+三层交换机负责物理网络vlan划分，开启vlan间路由器，交换机的g0/1属于vlan 2，和路由器内网接口连接，vlan 2 ip地址为：192.168.6.254
+（二层交换机也可以，但是需要在路由器上做单臂路由）。
+
+|设备         | vlan    |  vlan  ip 网关     | 功能            |备注    |
+|------       | :-----:| :----:              |  :----:        |:----:  |
+| 交换机      | 2      |  192.168.6.254/24   | 连接出口路由器  |        |
+|             | 20     |  192.168.20.1/24    | Storage&Manage Network | 计算节点出口网关 |
+|             | 30     |  192.168.30.1/24    | Public Network | 公共网络，可以配置多个   |
+|             | 300-999|                     | Guest Network  | 来宾网络       |
+
+|接口序号| vlan | 接口模式 | 连接设备   |备注            |
+|------  |----- | :----:  |  :----:    |:----:           |
+| g0/24  | 2    |  Access | 路由器g0/1  |  路由器内网接口 |
+| g0/1   | 1    |  Trunk  | Pod0 g0/24  | Pod0交换机（管理节点所在机柜）|
+| g0/2   | 1    |  Trunk  | Pod1 g0/24  | Pod1交换机 |
+| g0/3   | 1    |  Trunk  | Pod2 g0/24  | Pod2交换机 |
+
+<a name="流量分类规划"></a>
+### 流量分类规划
+
+|流量类型 |	VLAN |	        	CIDR  |		网关       |		起始IP    |		结束IP |备注|
+|------   |------   | :-----       | :----:       |  :----:     |:----:    | :-----   |
+|Public Network|30|	192.168.30.0/24 |	192.168.30.1 |	192.168.30.10	|192.168.20.250 |公共流量
+|Manage Network|20|	192.168.21.0/24	|	192.168.21.1 |	192.168.21.200|	192.168.11.229|	提供点，内部系统用的IP，如系统vm |
+|Guest Network |300-999	|	10.1.1.0/24	 |	10.1.1.1	 |	10.1.1.10	 |  10.1.1.250 |来宾流量，用户vm使用
+|Storage Network|	20	  |	192.168.20.0/24|192.168.20.1|	192.168.20.170|192.168.20.199| 存储流量 |
+
+- 高级区域配置成功后，客户vm将获得一个10.1.1.0网段的私有ip地址；
+- 系统将建立一个虚拟路由器Vrouter，这个虚拟路由器将作为用户vm 10.1.2.0 guest网段网关；
+- 虚拟路由器还将获得一个public的网段的ip地址；
+- vm将通过Vrouter nat功能实现外部通信和对外提供服务。
+
+Guest vm(10.1.1.x)→(10.1.1.1)Vrouter-nat(192.168.30.x) → (192.168.30.1)三层交换机(192.168.6.254）→
+（192.168.6.1）路由器(nat)→wan
+
+<a name="主机规划"></a>
+## 主机规划
+
+物理主机和管理服务器属于vlan 11 , 交换机连接计算节点的端口配置为trunk模式，允许所有vlan通过，本征vlan 为11；nfs为存储设备，连接交换机的接口配置为access模式，属于vlan 12。
+
+| 机柜 | 设备名称   | IP地址      |  	网关       |	vlan|用途    |系统             | 备注     |
+| --   | -------- | :-----       | :----:       |:----:|:----:   | :----:         |:----:    |
+| Pod0 |cs        |192.168.20.100|192.168.20.254|	20	| 管理节点| centos6.6 x64  |  8核，8G，120G |
+| Pod0 |nfs       |192.168.20.101|192.168.20.254|	20	|	二级存储 |centos6.6 x64  | 	8核，8G，500G|
+| Pod0 |nfs1      |192.168.20.102|192.168.20.254|	20	|	机柜1主存储|centos6.6 x64 | 8核，8G，1024G|
+| Pod0 |nfs2      |192.168.20.103|192.168.20.254|	20	|	机柜2主存储|centos6.6 x64 | 8核，8G，1024G|
+| Pod0 |nfs3      |192.168.20.104|192.168.20.254|	20	|	机柜2主存储|centos6.6 x64 | 8核，,8G，1024G|
+| Pod0 |vcenter   |192.168.20.105|192.168.20.254|	20	|	vcenter   | VMWARE vCenter5.5U2 | 	16核,8G |
+| Pod1 |nr1r01n05 |192.168.20.5  |192.168.20.254|	20	|	计算节点  | VMWARE esxi 5.5U2|  8核,8G|
+| Pod1 |nr1r01n19 |192.168.20.19 |192.168.20.254|	20	|	计算节    | VMWARE esxi 5.5U2|	 8核,8G|
+| Pod2 |nr1r02n09 |192.168.20.20 |192.168.20.254|	20	|	计算节点  | VMWARE esxi 5.5U2| 	12核,8G|
+| Pod2 |nr1r02n28 |192.168.20.27 |192.168.20.254|	20	|	计算节点  | VMWARE esxi 5.5U2| 	12核,8G|
+| Pod3 |nr1r03n05 |192.168.20.30 |192.168.20.254|	20	|	计算节点 	| VMWARE esxi 5.5U2| 	12核,64G|
+| Pod3 |nr1r03n10 |192.168.20.35 |192.168.20.254|	20	|	计算节点  | VMWARE esxi 5.5U2| 	12核,64G|
+| Pod4 |nr1r04n05 |192.168.20.40 |192.168.20.254|	20	|	计算节点  | VMWARE esxi 5.5U2| 	80核,128G|
+| Pod4 |nr1r04n14 |192.168.20.49 |192.168.20.254|	20	|	计算节点  | VMWARE esxi 5.5U2| 	80核,128G|
+| Pod5 |nr1r05n05 |192.168.20.50 |192.168.20.254|	20	|	计算节点  | VMWARE esxi 5.5U2| 	32核,64G|
+| Pod5 |nr1r05n10 |192.168.20.55 |192.168.20.254|	20	|	计算节点  | VMWARE esxi 5.5U2| 	32核,64G|
+
+<a name="Basic Zone"></a>
+## Basic Zone
+Basic Zone需要配置3种网络流量类型，分别为Management Network、Guest Network、Storage Network，具体规划信息如下表：
+
+|流量类型 |	VLAN |	        	CIDR  |		网关       |		起始IP    |		结束IP |备注|
+|------  |------  | :-----| :----:  |  :----:          |:----:            | :-----   |
+|Public Network |	 30  |	192.168.30.0/24  |	192.168.30.1 |	192.168.30.10	 |192.168.30.250 |公共流量, |
+|Manage Network|	 20	 |	192.168.20.0/24	 |	192.168.20.1 |	192.168.20.200	 |	192.168.20.229	 |	提供点，内部系统用的IP，如系统vm |
+|Guest Network  |	300-999|	10.1.1.0/24|		10.1.1.1	 |	10.1.1.10	 |  10.1.1.250 |来宾流量，用户vm使用, |
+|Storage Network|	 20	 |	192.168.20.0/24	 |	192.168.20.1 |	192.168.20.230	 |	192.168.20.249	 | 存储流量 |
+
+<a name="Advanced Zone"></a>
+## Advanced Zone
+
+|流量类型 |	VLAN |	        	CIDR  |		网关       |		起始IP    |		结束IP |备注|
+|------  |------  | :-----| :----:  |  :----:          |:----:            | :-----   |
+|Public Network |	30   |		192.168.30.0/24 |		192.168.30.1 |	192.168.30.10	 |192.168.30.250 |公共流量，后期可继续添加
+|Manage Network|	20	 |	192.168.20.0/24	 |	192.168.10.1 |		192.168.10.120	 |	192.168.10.169	 |	提供点，内部系统用的IP，如系统vm |
+|Guest Network |	300-999	|	10.1.1.0/24	 |	10.1.1.1	 |	10.1.1.10	 |  10.1.1.250 |来宾流量，用户vm使用
+|Storage Network|	20	   |	192.168.20.0/24	 |	192.168.20.1	 |	192.168.20.170	 |	192.168.20.199	 | 存储流量，后期可继续添加 |
+
+连接示意图如下图所示：
+![Advanced-Zone](../install/images/Advanced-Zone.png)
 
 <a name="部署CloudStack"></a>
 # 部署CloudStack

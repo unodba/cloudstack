@@ -2,6 +2,7 @@
 
 * [README](README.md)
 * [安装](section1/README.md)
+  * [CloudStack概述](install/choosing_deployment_architecture.md)
   * [CloudStack安装和配置](install/cloudstack_install.md)
   *  [网络配置](install/network_setup.md)
   *  [存储配置](install/storage_setup.md)
