@@ -19,3 +19,6 @@
   *  [模版](user/templates.md)
   *  [项目](user/project.md)
   *  [帐户](user/account.md)
+* [管理](#)
+  *  [创建模版](administration/templates.md)
+  *  [调优](administration/performance.md)
